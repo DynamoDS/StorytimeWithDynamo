@@ -166,10 +166,60 @@ export function playPageTurn() {
   source.stop(now + duration);
 }
 
-// Pick the deepest/oldest-sounding English male voice available
+// Current narration audio element so we can stop it
+let currentNarration = null;
+
+export function stopNarration() {
+  if (currentNarration) {
+    currentNarration.pause();
+    currentNarration.src = '';
+    currentNarration = null;
+  }
+  // Also cancel Web Speech API fallback if active
+  window.speechSynthesis?.cancel();
+}
+
+// Use the server-side Edge Neural TTS (whispering Davis voice)
+// Falls back to Web Speech API if the server is unavailable
+export async function speakAsGandalf(text) {
+  stopNarration();
+
+  try {
+    const resp = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+
+    if (!resp.ok) throw new Error('TTS request failed');
+
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+
+    return new Promise((resolve) => {
+      const audio = new Audio(url);
+      currentNarration = audio;
+      audio.onended = () => {
+        URL.revokeObjectURL(url);
+        currentNarration = null;
+        resolve();
+      };
+      audio.onerror = () => {
+        URL.revokeObjectURL(url);
+        currentNarration = null;
+        resolve();
+      };
+      audio.play().catch(() => resolve());
+    });
+  } catch {
+    // Fallback to Web Speech API
+    return speakFallback(text);
+  }
+}
+
+// Web Speech API fallback
 function pickVoice(synth) {
   const voices = synth.getVoices();
-  // Prefer voices that tend to sound deeper/older on Windows & Chrome
   const prefs = ['david', 'george', 'james', 'richard', 'daniel', 'male'];
   for (const pref of prefs) {
     const match = voices.find(
@@ -180,39 +230,23 @@ function pickVoice(synth) {
   return voices.find((v) => v.lang.startsWith('en')) || voices[0];
 }
 
-export function speakAsGandalf(text) {
+function speakFallback(text) {
   return new Promise((resolve) => {
     const synth = window.speechSynthesis;
-    synth.cancel();
-
-    // Break text into sentences for more natural pacing with pauses
     const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
 
     let i = 0;
     function speakNext() {
-      if (i >= sentences.length) {
-        resolve();
-        return;
-      }
-
+      if (i >= sentences.length) { resolve(); return; }
       const sentence = sentences[i].trim();
       i++;
-
       const utter = new SpeechSynthesisUtterance(sentence);
       utter.voice = pickVoice(synth);
-      // Very slow, lowest possible pitch, quiet — old wizard whispering by firelight
       utter.rate = 0.52;
       utter.pitch = 0.01;
       utter.volume = 0.45;
-
-      utter.onend = () => {
-        // Pause between sentences for dramatic, wizardly pacing
-        setTimeout(speakNext, 600);
-      };
-      utter.onerror = () => {
-        setTimeout(speakNext, 200);
-      };
-
+      utter.onend = () => setTimeout(speakNext, 600);
+      utter.onerror = () => setTimeout(speakNext, 200);
       synth.speak(utter);
     }
 

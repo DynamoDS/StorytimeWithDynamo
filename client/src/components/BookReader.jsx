@@ -224,7 +224,7 @@ function TocPopover({ steps, currentStep, onSelect, onClose }) {
 // ---------------------------------------------------------------------------
 // BookReader
 // ---------------------------------------------------------------------------
-function BookReader({ book, steps, currentStep, onStepChange, onBack, onFinish, onPageTurn, onNarrate }) {
+function BookReader({ book, steps, currentStep, onStepChange, onBack, onFinish, onPageTurn, onNarrate, onStopNarration }) {
   const [tocOpen, setTocOpen]           = useState(false);
   const [flipping, setFlipping]         = useState(false);
   const [flipDir, setFlipDir]           = useState('fwd');   // 'fwd' | 'bwd'
@@ -244,6 +244,7 @@ function BookReader({ book, steps, currentStep, onStepChange, onBack, onFinish, 
 
   function navigate(newIndex, direction) {
     if (flipping) return;
+    if (onStopNarration) onStopNarration();
     if (onPageTurn) onPageTurn();
     captureRightPage();
     setFlipDir(direction);

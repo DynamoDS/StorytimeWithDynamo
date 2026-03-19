@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { playLullaby, stopLullaby, setLullabyVolume, playPageTurn, speakAsGandalf } from './sounds';
+import { playLullaby, stopLullaby, setLullabyVolume, playPageTurn, speakAsGandalf, stopNarration } from './sounds';
 import Library from './components/Library';
 import BookCover from './components/BookCover';
 import BookReader from './components/BookReader';
@@ -21,14 +21,6 @@ function App() {
     setSelectedBook(book);
     setScreen('cover');
   }, []);
-
-  const handleOpenBook = useCallback(() => {
-    setCurrentStep(0);
-    setScreen('reader');
-    if (steps[0]?.text) {
-      speakAsGandalf(steps[0].text);
-    }
-  }, [steps]);
 
   const handleJumpTo = useCallback((stepIndex) => {
     setCurrentStep(stepIndex);
@@ -95,6 +87,14 @@ function App() {
   // For now, all books use the same sample steps
   const steps = SAMPLE_STEPS;
 
+  const handleOpenBook = useCallback(() => {
+    setCurrentStep(0);
+    setScreen('reader');
+    if (steps[0]?.text) {
+      speakAsGandalf(steps[0].text);
+    }
+  }, [steps]);
+
   return (
     <div className="app">
       {screen === 'library' && (
@@ -119,6 +119,7 @@ function App() {
           onFinish={handleFinish}
           onPageTurn={playPageTurn}
           onNarrate={speakAsGandalf}
+          onStopNarration={stopNarration}
         />
       )}
       {screen === 'result' && selectedBook && (
