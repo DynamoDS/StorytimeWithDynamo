@@ -59,3 +59,33 @@
 .lullaby-toggle.active .audio-btn-label {
   color: #c07030;
 }
+
+.lullaby-wrap {
+  position: relative;
+}
+
+.volume-popup {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 14px 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.volume-slider {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  appearance: slider-vertical;
+  width: 24px;
+  height: 100px;
+  accent-color: #e8a040;
+  cursor: pointer;
+}

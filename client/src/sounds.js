@@ -108,6 +108,12 @@ export function stopLullaby() {
   }
 }
 
+export function setLullabyVolume(vol) {
+  if (lullabyGain) {
+    lullabyGain.gain.setValueAtTime(vol, getAudioContext().currentTime);
+  }
+}
+
 // Pre-generate a reusable noise buffer so each click is instant
 let noiseBuffer = null;
 

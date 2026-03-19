@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { playLullaby, stopLullaby, playPageTurn, speakAsGandalf } from './sounds';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { playLullaby, stopLullaby, setLullabyVolume, playPageTurn, speakAsGandalf } from './sounds';
 import Library from './components/Library';
 import BookCover from './components/BookCover';
 import BookReader from './components/BookReader';
@@ -12,7 +12,10 @@ function App() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [lullabyOn, setLullabyOn] = useState(false);
+  const [lullabyVol, setLullabyVol] = useState(0.5);
+  const [showVolume, setShowVolume] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const volumeRef = useRef(null);
 
   const handleBookSelect = useCallback((book) => {
     setSelectedBook(book);
@@ -52,9 +55,33 @@ function App() {
       stopLullaby();
     } else {
       playLullaby();
+      setLullabyVolume(lullabyVol);
     }
     setLullabyOn(!lullabyOn);
   }
+
+  function handleVolumeChange(e) {
+    const vol = parseFloat(e.target.value);
+    setLullabyVol(vol);
+    setLullabyVolume(vol);
+  }
+
+  function handleVolumeContext(e) {
+    e.preventDefault();
+    setShowVolume((v) => !v);
+  }
+
+  // Close volume popup when clicking outside
+  useEffect(() => {
+    if (!showVolume) return;
+    function handler(e) {
+      if (volumeRef.current && !volumeRef.current.contains(e.target)) {
+        setShowVolume(false);
+      }
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showVolume]);
 
   async function handleNarrate() {
     setSpeaking(true);
@@ -99,11 +126,30 @@ function App() {
           onBackToLibrary={handleBackToLibrary}
         />
       )}
-      <div className="audio-controls">
-        <button className={`audio-btn lullaby-toggle ${lullabyOn ? 'active' : ''}`} onClick={toggleLullaby}>
-          {lullabyOn ? '\u23F9' : '\u266B'}
-          <span className="audio-btn-label">{lullabyOn ? 'Stop Lullaby' : 'Lullaby'}</span>
-        </button>
+      <div className="audio-controls" ref={volumeRef}>
+        <div className="lullaby-wrap">
+          {showVolume && (
+            <div className="volume-popup">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={lullabyVol}
+                onChange={handleVolumeChange}
+                className="volume-slider"
+              />
+            </div>
+          )}
+          <button
+            className={`audio-btn lullaby-toggle ${lullabyOn ? 'active' : ''}`}
+            onClick={toggleLullaby}
+            onContextMenu={handleVolumeContext}
+          >
+            {lullabyOn ? '\uD83D\uDD0A' : '\uD83D\uDD07'}
+            <span className="audio-btn-label">{lullabyOn ? 'Lullaby On' : 'Lullaby Off'}</span>
+          </button>
+        </div>
         <button className="audio-btn" onClick={handleNarrate} disabled={speaking} title="Narrate">
           {speaking ? '\uD83D\uDDE3\uFE0F' : '\uD83E\uDDD9'}
         </button>
