@@ -88,6 +88,7 @@ function App() {
           onBack={() => setScreen('cover')}
           onFinish={handleFinish}
           onPageTurn={playPageTurn}
+          onNarrate={speakAsGandalf}
         />
       )}
       {screen === 'result' && selectedBook && (
@@ -99,8 +100,9 @@ function App() {
         />
       )}
       <div className="audio-controls">
-        <button className="audio-btn" onClick={toggleLullaby} title={lullabyOn ? 'Stop Lullaby' : 'Play Lullaby'}>
+        <button className={`audio-btn lullaby-toggle ${lullabyOn ? 'active' : ''}`} onClick={toggleLullaby}>
           {lullabyOn ? '\u23F9' : '\u266B'}
+          <span className="audio-btn-label">{lullabyOn ? 'Stop Lullaby' : 'Lullaby'}</span>
         </button>
         <button className="audio-btn" onClick={handleNarrate} disabled={speaking} title="Narrate">
           {speaking ? '\uD83D\uDDE3\uFE0F' : '\uD83E\uDDD9'}

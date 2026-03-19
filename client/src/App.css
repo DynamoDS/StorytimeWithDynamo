@@ -17,27 +17,45 @@
 }
 
 .audio-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 20px;
   border: 2px solid rgba(0, 0, 0, 0.1);
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
   transition: all 0.15s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .audio-btn:hover:not(:disabled) {
-  transform: scale(1.1);
+  transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .audio-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.audio-btn-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  color: #6b5040;
+}
+
+.lullaby-toggle.active {
+  background: rgba(255, 240, 220, 0.95);
+  border-color: #e8c080;
+}
+
+.lullaby-toggle.active .audio-btn-label {
+  color: #c07030;
 }
