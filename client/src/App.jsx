@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { playLullaby, stopLullaby, setLullabyVolume, playPageTurn, speakAsGandalf, stopNarration } from './sounds';
+import Home from './pages/Home';
 import Library from './components/Library';
 import BookCover from './components/BookCover';
 import BookReader from './components/BookReader';
@@ -8,7 +9,7 @@ import { SAMPLE_STEPS } from './data/sampleSteps';
 import './App.css';
 
 function App() {
-  const [screen, setScreen] = useState('library');
+  const [screen, setScreen] = useState('home');
   const [selectedBook, setSelectedBook] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [lullabyOn, setLullabyOn] = useState(false);
@@ -16,6 +17,20 @@ function App() {
   const [showVolume, setShowVolume] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const volumeRef = useRef(null);
+
+  const handleGraphLoaded = useCallback((data, fileName) => {
+    const book = {
+      id: fileName,
+      title: fileName.replace(/\.dyn$/i, '').replace(/[-_]/g, ' '),
+      author: 'You',
+      org: '',
+      steps: SAMPLE_STEPS.length,
+      category: 'Custom',
+      color: 'bk-teal',
+    };
+    setSelectedBook(book);
+    setScreen('cover');
+  }, []);
 
   const handleBookSelect = useCallback((book) => {
     setSelectedBook(book);
@@ -97,6 +112,12 @@ function App() {
 
   return (
     <div className="app">
+      {screen === 'home' && (
+        <Home
+          onGraphLoaded={handleGraphLoaded}
+          onBrowseLibrary={() => setScreen('library')}
+        />
+      )}
       {screen === 'library' && (
         <Library onBookSelect={handleBookSelect} />
       )}

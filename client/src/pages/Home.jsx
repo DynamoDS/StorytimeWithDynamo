@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import './Home.css';
 
-function Home({ onGraphLoaded }) {
+function Home({ onGraphLoaded, onBrowseLibrary }) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState(null);
   const dragCounter = useRef(0);
@@ -120,6 +120,15 @@ function Home({ onGraphLoaded }) {
       </div>
 
       {error && <p className="home-error">{error}</p>}
+
+      {onBrowseLibrary && (
+        <p className="home-library-link">
+          or{' '}
+          <button className="home-library-btn" onClick={onBrowseLibrary}>
+            browse the library
+          </button>
+        </p>
+      )}
     </div>
   );
 }
