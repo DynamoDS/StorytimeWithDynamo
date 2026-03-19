@@ -25,7 +25,10 @@ function App() {
   const handleOpenBook = useCallback(() => {
     setCurrentStep(0);
     setScreen('reader');
-  }, []);
+    if (steps[0]?.text) {
+      speakAsGandalf(steps[0].text);
+    }
+  }, [steps]);
 
   const handleJumpTo = useCallback((stepIndex) => {
     setCurrentStep(stepIndex);

@@ -166,43 +166,61 @@ export function playPageTurn() {
   source.stop(now + duration);
 }
 
+// Pick the deepest/oldest-sounding English male voice available
+function pickVoice(synth) {
+  const voices = synth.getVoices();
+  // Prefer voices that tend to sound deeper/older on Windows & Chrome
+  const prefs = ['david', 'george', 'james', 'richard', 'daniel', 'male'];
+  for (const pref of prefs) {
+    const match = voices.find(
+      (v) => v.name.toLowerCase().includes(pref) && v.lang.startsWith('en')
+    );
+    if (match) return match;
+  }
+  return voices.find((v) => v.lang.startsWith('en')) || voices[0];
+}
+
 export function speakAsGandalf(text) {
   return new Promise((resolve) => {
     const synth = window.speechSynthesis;
-    // Cancel anything currently speaking
     synth.cancel();
 
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 0.65;
-    utter.pitch = 0.3;
-    utter.volume = 1.0;
+    // Break text into sentences for more natural pacing with pauses
+    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
 
-    // Try to find the deepest/most dramatic male voice available
-    function pickVoice() {
-      const voices = synth.getVoices();
-      const prefs = ['male', 'david', 'james', 'daniel', 'george', 'richard'];
-      for (const pref of prefs) {
-        const match = voices.find(
-          (v) => v.name.toLowerCase().includes(pref) && v.lang.startsWith('en')
-        );
-        if (match) return match;
+    let i = 0;
+    function speakNext() {
+      if (i >= sentences.length) {
+        resolve();
+        return;
       }
-      // Fallback: any English voice
-      return voices.find((v) => v.lang.startsWith('en')) || voices[0];
+
+      const sentence = sentences[i].trim();
+      i++;
+
+      const utter = new SpeechSynthesisUtterance(sentence);
+      utter.voice = pickVoice(synth);
+      // Very slow, lowest possible pitch, quiet — old wizard whispering by firelight
+      utter.rate = 0.52;
+      utter.pitch = 0.01;
+      utter.volume = 0.45;
+
+      utter.onend = () => {
+        // Pause between sentences for dramatic, wizardly pacing
+        setTimeout(speakNext, 600);
+      };
+      utter.onerror = () => {
+        setTimeout(speakNext, 200);
+      };
+
+      synth.speak(utter);
     }
 
     const voices = synth.getVoices();
     if (voices.length > 0) {
-      utter.voice = pickVoice();
-      utter.onend = resolve;
-      synth.speak(utter);
+      speakNext();
     } else {
-      // Voices load asynchronously in some browsers
-      synth.addEventListener('voiceschanged', () => {
-        utter.voice = pickVoice();
-        utter.onend = resolve;
-        synth.speak(utter);
-      }, { once: true });
+      synth.addEventListener('voiceschanged', speakNext, { once: true });
     }
   });
 }
