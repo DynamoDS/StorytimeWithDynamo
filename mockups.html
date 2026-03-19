@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamo Storybook</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',system-ui,sans-serif;background:#fef9f0;overflow:hidden;height:100vh;}
+
+.screen{display:none;width:100vw;height:100vh;flex-direction:column;overflow:hidden;}
+.screen.active{display:flex;}
+
+/* ════════════════════════
+   SHARED NAV ELEMENTS
+════════════════════════ */
+.topbar{
+  background:#fff;border-bottom:3px solid #f0e8d8;
+  height:58px;display:flex;align-items:center;padding:0 28px;gap:14px;
+  flex-shrink:0;box-shadow:0 3px 0 rgba(0,0,0,0.04);
+}
+.back-btn{
+  display:flex;align-items:center;gap:6px;
+  background:#fff8f0;border:2.5px solid #e8d5b8;border-radius:20px;
+  color:#b08060;font-size:13px;font-weight:700;padding:7px 16px;
+  cursor:pointer;transition:all 0.15s;white-space:nowrap;
+  font-family:inherit;
+}
+.back-btn:hover{background:#fff0d8;border-color:#ffb347;color:#e07040;transform:scale(1.03);}
+.wordmark{display:flex;align-items:center;gap:10px;}
+.wordmark-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,#ff6b6b,#ff8e53);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;box-shadow:0 3px 0 rgba(200,80,30,0.3);
+}
+.wordmark-text{font-size:17px;font-weight:900;color:#3d2c1e;letter-spacing:-0.01em;}
+.wordmark-text span{color:#ff6b6b;}
+
+/* ════════════════════════
+   SCREEN 1 — LIBRARY
+════════════════════════ */
+#screen-library{background:linear-gradient(160deg,#fff8e8,#fef3d0);overflow-y:auto;}
+
+.lib-header{
+  background:#fff;border-bottom:3px solid #f0e8d8;
+  padding:0 32px;height:64px;display:flex;align-items:center;gap:0;
+  position:sticky;top:0;z-index:100;box-shadow:0 3px 0 rgba(0,0,0,0.04);
+}
+.lib-nav{display:flex;gap:4px;flex:1;margin-left:24px;}
+.lib-nav-link{padding:7px 16px;border-radius:20px;font-size:14px;font-weight:700;color:#b0957a;cursor:pointer;transition:all 0.15s;}
+.lib-nav-link:hover{background:#fff3e0;color:#e07040;}
+.lib-nav-link.active{background:#fff0d8;color:#e07040;}
+.lib-new-btn{background:linear-gradient(135deg,#ff6b6b,#ff8e53);color:#fff;font-size:13px;font-weight:800;padding:9px 20px;border-radius:20px;border:none;cursor:pointer;box-shadow:0 3px 0 rgba(200,80,30,0.3);transition:transform 0.1s,box-shadow 0.1s;font-family:inherit;}
+.lib-new-btn:hover{transform:translateY(-2px);box-shadow:0 5px 0 rgba(200,80,30,0.3);}
+.lib-avatar{width:34px;height:34px;border-radius:50%;margin-left:12px;background:linear-gradient(135deg,#a78bfa,#818cf8);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;border:3px solid #fff;box-shadow:0 2px 8px rgba(129,140,248,0.3);}
+
+.lib-toolbar{padding:18px 32px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.lib-search-wrap{position:relative;}
+.lib-search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;color:#c0a88a;}
+.lib-search{background:#fff;border:2.5px solid #e8d5b8;border-radius:20px;font-family:inherit;font-size:14px;font-weight:600;color:#3d2c1e;padding:9px 16px 9px 38px;outline:none;width:280px;box-shadow:0 2px 0 rgba(0,0,0,0.04);}
+.lib-search::placeholder{color:#c8a880;}
+.lib-search:focus{border-color:#ff8e53;}
+.fpill{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2.5px solid #e8d5b8;background:#fff;color:#b0957a;transition:all 0.15s;box-shadow:0 2px 0 rgba(0,0,0,0.04);font-family:inherit;}
+.fpill:hover{border-color:#ffb347;color:#e07040;transform:translateY(-1px);}
+.fpill.active{background:#fff0d8;border-color:#ff8e53;color:#e07040;}
+
+.room-title{padding:22px 32px 0;font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#c8a880;display:flex;align-items:center;gap:12px;}
+.room-title::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,#e8d5b8,transparent);border-radius:2px;}
+
+.shelf-wrap{padding:0 32px 6px;}
+.shelf{position:relative;background:linear-gradient(180deg,#f5deb3 0px,#e8c88a 4px,#d4a860 10px,#c89848 18px,#b88838 26px);border-top:3px solid #e8c880;border-bottom:5px solid #8a5c1e;border-radius:3px;padding:22px 20px 0;display:flex;align-items:flex-end;gap:5px;min-height:185px;box-shadow:0 8px 24px rgba(120,80,20,0.25),inset 0 2px 0 rgba(255,240,180,0.4);}
+.shelf::before{content:'';position:absolute;top:0;left:0;right:0;bottom:28px;background:repeating-linear-gradient(90deg,transparent 0,transparent 44px,rgba(0,0,0,0.015) 44px,rgba(0,0,0,0.015) 45px),linear-gradient(180deg,#fdf8f0,#f8f0e0);z-index:0;border-radius:2px 2px 0 0;}
+.shelf-gap{height:26px;}
+.bookend{width:20px;flex-shrink:0;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#c8956a,#986040);box-shadow:2px 0 5px rgba(0,0,0,0.2);position:relative;z-index:1;}
+.shelf-space{flex:1;}
+
+.book{position:relative;z-index:1;border-radius:2px 5px 5px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10px 4px 8px;transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.2s;flex-shrink:0;user-select:none;border-left:3px solid rgba(255,255,255,0.18);border-right:2px solid rgba(0,0,0,0.2);}
+.book:hover{transform:translateY(-22px) rotate(-1.5deg) scale(1.05);box-shadow:8px 18px 40px rgba(0,0,0,0.28),2px 0 12px rgba(0,0,0,0.15);z-index:20;}
+.book:active{transform:translateY(-12px) rotate(-0.5deg);}
+.book:hover .book-tip{opacity:1;transform:translateX(-50%) translateY(0);}
+.book-title-s{writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;font-weight:800;color:rgba(255,255,255,0.93);letter-spacing:0.04em;line-height:1.1;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-height:calc(100% - 28px);text-shadow:0 1px 3px rgba(0,0,0,0.35);}
+.book-auth-s{writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;color:rgba(255,255,255,0.42);letter-spacing:0.04em;white-space:nowrap;}
+.book-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.22);margin-bottom:4px;flex-shrink:0;}
+.book-tip{position:absolute;bottom:calc(100% + 16px);left:50%;transform:translateX(-50%) translateY(8px);background:#fff;border:3px solid #f0e0c0;border-radius:14px;padding:11px 15px;width:196px;pointer-events:none;opacity:0;transition:opacity 0.15s,transform 0.2s cubic-bezier(0.34,1.56,0.64,1);z-index:100;box-shadow:0 8px 28px rgba(120,80,20,0.2);}
+.book-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:#f0e0c0;}
+.bt-t{font-size:13px;font-weight:800;color:#3d2c1e;margin-bottom:3px;line-height:1.3;}
+.bt-a{font-size:11px;color:#c0a080;margin-bottom:8px;font-weight:600;}
+.bt-r{display:flex;align-items:center;justify-content:space-between;}
+.bt-p{font-size:11px;color:#c0a080;font-weight:700;}
+.bt-c{padding:3px 9px;border-radius:10px;font-size:10px;font-weight:800;}
+.bk-red{background:linear-gradient(180deg,#e05050,#b83030);}
+.bk-blue{background:linear-gradient(180deg,#4080d0,#2860b0);}
+.bk-green{background:linear-gradient(180deg,#40a860,#287840);}
+.bk-orange{background:linear-gradient(180deg,#e08030,#c05818);}
+.bk-purple{background:linear-gradient(180deg,#8050c0,#6030a0);}
+.bk-teal{background:linear-gradient(180deg,#2898a8,#1a7080);}
+.bk-pink{background:linear-gradient(180deg,#d84888,#b02868);}
+.bk-amber{background:linear-gradient(180deg,#d0a020,#a87810);}
+.bk-indigo{background:linear-gradient(180deg,#5060c8,#3040a0);}
+.bk-rose{background:linear-gradient(180deg,#d05060,#a82840);}
+.bk-lime{background:linear-gradient(180deg,#70b030,#508018);}
+.bk-cyan{background:linear-gradient(180deg,#1890c0,#0870a0);}
+
+/* ════════════════════════
+   SCREEN 2 — BOOK COVER
+════════════════════════ */
+#screen-cover{background:#fffdf8;overflow:hidden;}
+.cover-layout{display:flex;flex:1;overflow:hidden;}
+.cover-left{width:400px;flex-shrink:0;background:#fff8f0;border-right:3px solid #f0e8d8;padding:24px;overflow-y:auto;}
+.cover-graph-box{width:100%;height:230px;background:linear-gradient(135deg,#1a1e28,#12161e);border-radius:18px;border:3px solid #e8d5b8;overflow:hidden;margin-bottom:18px;box-shadow:0 4px 0 rgba(0,0,0,0.08);}
+.cov-author-card{background:#fff;border:2.5px solid #f0e8d8;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;box-shadow:0 2px 0 rgba(0,0,0,0.04);}
+.cov-ava{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#60a0f0,#8060e8);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;border:3px solid #fff;box-shadow:0 2px 8px rgba(100,140,240,0.25);}
+.cov-name{font-size:13px;font-weight:800;color:#3d2c1e;}
+.cov-org{font-size:11px;color:#c0a080;font-weight:600;margin-top:2px;}
+.cov-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.cov-tag{padding:4px 12px;border-radius:12px;font-size:12px;font-weight:700;background:#fff8f0;color:#c08050;border:2px solid #f0e0c8;}
+.save-btn{width:100%;padding:10px;border-radius:14px;background:#fff;border:2.5px solid #e8d5b8;color:#c08050;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;box-shadow:0 2px 0 rgba(0,0,0,0.04);font-family:inherit;}
+.save-btn:hover{background:#fff8f0;border-color:#ffb347;color:#e07040;}
+.cover-right{flex:1;padding:28px 32px;overflow-y:auto;}
+.cov-title{font-size:26px;font-weight:900;color:#3d2c1e;letter-spacing:-0.02em;line-height:1.2;margin-bottom:8px;}
+.cov-desc{font-size:14px;color:#8a7060;line-height:1.75;margin-bottom:18px;font-weight:600;}
+.cov-stats{display:flex;gap:0;margin-bottom:22px;background:#fff8f0;border:2.5px solid #f0e8d8;border-radius:14px;overflow:hidden;}
+.cov-stat{flex:1;padding:12px;text-align:center;border-right:2px solid #f0e8d8;}
+.cov-stat:last-child{border-right:none;}
+.cov-stat-val{font-size:19px;font-weight:900;color:#3d2c1e;}
+.cov-stat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#c0a080;margin-top:2px;}
+.toc-heading{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#c0a080;margin-bottom:8px;}
+.toc-list{display:flex;flex-direction:column;gap:4px;margin-bottom:20px;}
+.toc-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;cursor:pointer;background:#fff;border:2px solid #f0e8d8;transition:all 0.15s;box-shadow:0 2px 0 rgba(0,0,0,0.03);}
+.toc-row:hover{border-color:#ffb347;transform:translateX(4px);background:#fff8f0;}
+.toc-num{width:22px;height:22px;border-radius:7px;flex-shrink:0;background:#f0e8d8;color:#b09070;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;}
+.toc-name{font-size:13px;font-weight:700;color:#5a4030;flex:1;}
+.toc-type{padding:3px 9px;border-radius:10px;font-size:10px;font-weight:800;}
+.t-intro{background:#f3e8ff;color:#9061f9;}
+.t-input{background:#dbeafe;color:#3b82f6;}
+.t-logic{background:#fef9c3;color:#d97706;}
+.t-output{background:#dcfce7;color:#16a34a;}
+.open-btn{width:100%;padding:14px;border-radius:18px;background:linear-gradient(135deg,#ff6b6b,#ff8e53);color:#fff;font-size:16px;font-weight:900;border:none;cursor:pointer;box-shadow:0 5px 0 rgba(200,80,30,0.3);transition:transform 0.1s,box-shadow 0.1s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;}
+.open-btn:hover{transform:translateY(-3px);box-shadow:0 8px 0 rgba(200,80,30,0.3);}
+.open-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(200,80,30,0.3);}
+
+/* ════════════════════════
+   SCREEN 3 — BOOK READER
+════════════════════════ */
+#screen-reader{background:#2a1a0a;overflow:hidden;}
+
+/* Top bar for reader */
+.reader-topbar{
+  background:rgba(20,10,3,0.8);
+  border-bottom:1px solid rgba(200,150,60,0.15);
+  height:50px;display:flex;align-items:center;padding:0 24px;gap:14px;flex-shrink:0;
+}
+.reader-topbar .back-btn{background:rgba(255,248,240,0.08);border-color:rgba(200,150,60,0.25);color:rgba(220,190,130,0.7);}
+.reader-topbar .back-btn:hover{background:rgba(255,200,100,0.1);border-color:rgba(200,150,60,0.5);color:#e8c880;}
+.reader-book-name{flex:1;font-size:14px;font-weight:800;color:rgba(230,200,140,0.6);letter-spacing:0.02em;}
+.reader-progress-text{font-size:12px;font-weight:700;color:rgba(180,140,80,0.5);}
+.toc-toggle-btn{
+  background:rgba(255,248,240,0.06);border:1.5px solid rgba(200,150,60,0.2);
+  border-radius:10px;color:rgba(200,160,80,0.5);font-size:12px;font-weight:700;
+  padding:6px 14px;cursor:pointer;transition:all 0.15s;font-family:inherit;
+}
+.toc-toggle-btn:hover{background:rgba(255,200,100,0.1);color:#e8c880;border-color:rgba(200,150,60,0.4);}
+
+/* Stage: area where the book floats */
+.reader-stage{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:16px 24px;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%,rgba(200,130,40,0.1) 0%,transparent 60%),
+    radial-gradient(ellipse 30% 60% at 5%  50%,rgba(160,100,30,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 30% 60% at 95% 50%,rgba(160,100,30,0.06) 0%,transparent 60%),
+    #1e0f05;
+  position:relative;overflow:hidden;
+}
+
+/* ── The actual open book ── */
+.book-spread{
+  display:flex;
+  height:min(660px, calc(100vh - 90px));
+  width:min(calc(min(660px,calc(100vh - 90px)) * 1.72), calc(100vw - 40px));
+  border-radius:4px 6px 6px 4px;
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.65),
+    0 10px 20px rgba(0,0,0,0.4),
+    0 2px 4px rgba(0,0,0,0.3);
+  position:relative;
+}
+
+/* ── Left page (graph) ── */
+.page-left{
+  flex:1;
+  background:
+    radial-gradient(ellipse at 80% 10%, rgba(200,160,80,0.04) 0%, transparent 50%),
+    linear-gradient(175deg, #faf5e6 0%, #f3ecd8 60%, #ede4cc 100%);
+  border-radius:4px 0 0 4px;
+  display:flex;flex-direction:column;
+  padding:28px 22px 18px 28px;
+  position:relative;
+  box-shadow:inset -14px 0 22px rgba(0,0,0,0.1);
+  overflow:hidden;
+}
+/* left page edge lines (book binding) */
+.page-left::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(90deg,rgba(140,100,50,0.3),transparent);
+}
+
+/* ── Book spine / gutter ── */
+.book-gutter{
+  width:32px;flex-shrink:0;
+  background:linear-gradient(90deg,
+    rgba(0,0,0,0.18) 0%,
+    rgba(100,60,20,0.25) 30%,
+    rgba(80,45,15,0.3) 50%,
+    rgba(100,60,20,0.25) 70%,
+    rgba(0,0,0,0.18) 100%
+  );
+  position:relative;z-index:5;
+}
+.book-gutter::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:6px;
+  background:linear-gradient(90deg,rgba(0,0,0,0.2),transparent);
+}
+.book-gutter::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:6px;
+  background:linear-gradient(270deg,rgba(0,0,0,0.2),transparent);
+}
+
+/* ── Right page (story) ── */
+.page-right-wrap{
+  flex:1;position:relative;
+  border-radius:0 6px 6px 0;
+  overflow:hidden;
+  /* perspective for 3D flip */
+  perspective:1400px;
+  perspective-origin:left center;
+}
+.page-right{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(200,160,80,0.04) 0%, transparent 50%),
+    linear-gradient(175deg, #fdf9ed 0%, #f7f0dc 60%, #f0e8ce 100%);
+  display:flex;flex-direction:column;
+  padding:28px 28px 18px 22px;
+  overflow:hidden;
+}
+/* right page shadow at spine edge */
+.page-right::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:18px;
+  background:linear-gradient(90deg,rgba(0,0,0,0.08),transparent);pointer-events:none;
+  z-index:1;
+}
+/* subtle page curl on bottom-right corner */
+.page-right::after{
+  content:'';position:absolute;bottom:0;right:0;
+  width:50px;height:50px;
+  background:linear-gradient(225deg,
+    #e8dfc8 0%,#e8dfc8 40%,
+    rgba(200,180,130,0.4) 50%,
+    transparent 60%
+  );
+  border-radius:0 0 6px 0;
+  pointer-events:none;z-index:10;
+}
+
+/* ── Page content layout ── */
+.page-ornament{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:12px;flex-shrink:0;
+}
+.ornament-line{flex:1;height:1.5px;background:linear-gradient(90deg,transparent,rgba(180,140,80,0.3),transparent);}
+.ornament-center{font-size:11px;color:rgba(160,120,60,0.5);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;}
+
+/* LEFT page content */
+.page-chapter-label{
+  font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(160,100,40,0.6);margin-bottom:10px;flex-shrink:0;
+}
+.page-graph-area{
+  flex:1;
+  background:linear-gradient(135deg,#1a1e28,#12161e);
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 4px 16px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.04);
+  border:1.5px solid rgba(255,255,255,0.04);
+}
+.page-legend{
+  display:flex;gap:12px;margin-top:10px;justify-content:center;flex-shrink:0;
+}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:rgba(140,100,50,0.6);}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
+.page-num-left{text-align:center;font-size:11px;font-weight:700;color:rgba(160,120,60,0.4);margin-top:8px;font-family:'Lora',serif;letter-spacing:0.08em;flex-shrink:0;}
+
+/* RIGHT page content */
+.step-type-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:18px;padding:5px 13px;
+  font-size:11px;font-weight:800;margin-bottom:10px;flex-shrink:0;
+  border:2px solid transparent;
+}
+.right-page-title{
+  font-size:20px;font-weight:900;color:#3d2c1e;
+  line-height:1.25;margin-bottom:10px;flex-shrink:0;
+  font-family:'Lora',serif;
+}
+.right-page-text{
+  font-size:13px;color:#6a5040;line-height:1.85;
+  margin-bottom:12px;flex-shrink:0;font-weight:600;
+  overflow:hidden;
+}
+.callouts-area{display:flex;flex-direction:column;gap:7px;flex-shrink:0;}
+.callout-item{
+  display:flex;gap:10px;
+  background:rgba(255,245,228,0.7);
+  border:2px solid rgba(240,210,160,0.6);
+  border-left:4px solid #ffb347;
+  border-radius:10px;padding:9px 12px;
+  backdrop-filter:blur(4px);
+}
+.callout-k{font-size:10px;font-weight:800;color:#c09060;text-transform:uppercase;letter-spacing:0.06em;width:90px;flex-shrink:0;padding-top:1px;}
+.callout-v{font-size:12px;font-weight:700;color:#5a3e28;line-height:1.5;}
+
+/* ── Page footer with navigation ── */
+.page-footer{
+  display:flex;align-items:center;gap:10px;
+  margin-top:auto;padding-top:12px;flex-shrink:0;
+  border-top:1.5px solid rgba(180,140,80,0.2);
+}
+.pg-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:7px 16px;border-radius:14px;
+  font-size:13px;font-weight:800;cursor:pointer;border:none;font-family:inherit;
+  transition:transform 0.1s,box-shadow 0.1s,opacity 0.15s;
+}
+.pg-btn-prev{background:rgba(240,220,180,0.5);color:#a07840;border:2px solid rgba(200,160,80,0.3) !important;border:none;}
+.pg-btn-prev:hover{background:rgba(240,220,180,0.8);transform:scale(1.05);}
+.pg-btn-prev:disabled{opacity:0.3;cursor:default;transform:none;}
+.pg-num{flex:1;text-align:center;font-size:12px;font-weight:700;color:rgba(160,120,60,0.5);font-family:'Lora',serif;letter-spacing:0.06em;}
+.pg-btn-next{
+  background:linear-gradient(135deg,#ff8e53,#ff6b6b);color:#fff;
+  box-shadow:0 3px 0 rgba(200,80,30,0.3);
+}
+.pg-btn-next:hover{transform:translateY(-2px);box-shadow:0 5px 0 rgba(200,80,30,0.3);}
+.pg-btn-next:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(200,80,30,0.3);}
+
+/* ── Page turn / flip layer ── */
+#flip-layer{
+  position:absolute;inset:0;
+  transform-origin:left center;
+  transform-style:preserve-3d;
+  z-index:20;
+  display:none;
+  border-radius:0 6px 6px 0;
+}
+.flip-face{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  border-radius:inherit;
+  overflow:hidden;
+}
+#flip-front{
+  background:
+    radial-gradient(ellipse at 20% 10%,rgba(200,160,80,0.04) 0%,transparent 50%),
+    linear-gradient(175deg,#fdf9ed 0%,#f7f0dc 60%,#f0e8ce 100%);
+  padding:28px 28px 18px 22px;
+  display:flex;flex-direction:column;
+}
+#flip-front::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:18px;
+  background:linear-gradient(90deg,rgba(0,0,0,0.08),transparent);pointer-events:none;z-index:1;
+}
+/* paper back face */
+#flip-back{
+  transform:rotateY(180deg);
+  background:linear-gradient(175deg,#ede8d8,#e4dcca);
+}
+/* flip-forward animation: page sweeps left (pivot at spine = left edge) */
+.flipping-fwd{animation:flipFwd 0.65s cubic-bezier(0.4,0,0.2,1) forwards;}
+@keyframes flipFwd{
+  0%  {transform:rotateY(0deg);}
+  35% {transform:rotateY(-55deg) translateZ(28px);}
+  65% {transform:rotateY(-125deg) translateZ(28px);}
+  100%{transform:rotateY(-180deg);}
+}
+/* flip-back animation: new page unfolds from left */
+.flipping-bwd{animation:flipBwd 0.55s cubic-bezier(0.4,0,0.2,1) forwards;}
+@keyframes flipBwd{
+  0%  {transform:rotateY(-180deg);}
+  100%{transform:rotateY(0deg);}
+}
+/* shadow that sweeps during flip */
+.flip-shadow{
+  position:absolute;inset:0;pointer-events:none;z-index:2;border-radius:inherit;
+  background:linear-gradient(90deg,rgba(0,0,0,0.12),transparent 60%);
+  opacity:0;
+}
+.flipping-fwd .flip-shadow{animation:shadowFwd 0.65s ease-in-out forwards;}
+@keyframes shadowFwd{0%{opacity:0;}30%{opacity:1;}70%{opacity:1;}100%{opacity:0;}}
+
+/* ── TOC popover ── */
+.toc-popover{
+  position:absolute;top:58px;right:20px;
+  background:#fff;border:3px solid #f0e0c0;border-radius:18px;
+  padding:16px;width:260px;
+  box-shadow:0 12px 40px rgba(120,80,20,0.25);
+  z-index:100;
+}
+.toc-pop-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#c0a080;margin-bottom:10px;}
+.toc-pop-row{
+  display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;
+  cursor:pointer;transition:all 0.12s;border:2px solid transparent;
+}
+.toc-pop-row:hover{background:#fff8f0;border-color:#f0e0c0;}
+.toc-pop-row.done{opacity:0.5;}
+.toc-pop-row.active{background:#fff0d8;border-color:#ffb347;}
+.toc-pop-num{width:20px;height:20px;border-radius:6px;background:#f0e8d8;color:#b09070;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;}
+.toc-pop-row.active .toc-pop-num{background:linear-gradient(135deg,#ff8e53,#ff6b6b);color:#fff;}
+.toc-pop-row.done .toc-pop-num{background:linear-gradient(135deg,#4ade80,#22c55e);color:#fff;}
+.toc-pop-name{font-size:12px;font-weight:700;color:#5a4030;flex:1;line-height:1.3;}
+
+/* ════════════════════════
+   SCREEN 4 — RESULT
+════════════════════════ */
+#screen-result{background:#2a1a0a;overflow:hidden;}
+.result-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(200,130,40,0.1) 0%,transparent 60%),#1e0f05;}
+.result-book{
+  background:linear-gradient(175deg,#fdf9ed,#f0e8ce);
+  border-radius:10px;width:min(580px,calc(100vw - 40px));
+  box-shadow:0 30px 80px rgba(0,0,0,0.6),0 8px 16px rgba(0,0,0,0.3);
+  padding:36px;overflow-y:auto;max-height:calc(100vh - 120px);
+}
+.result-banner{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:3px solid #86efac;border-radius:18px;padding:18px 22px;margin-bottom:22px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 0 rgba(20,160,60,0.12);}
+.result-bang{font-size:30px;}
+.result-banner h3{font-size:16px;font-weight:900;color:#15803d;}
+.result-banner p{font-size:12px;font-weight:600;color:#86efac;margin-top:3px;}
+.result-output{background:rgba(255,255,255,0.6);border:2.5px solid rgba(200,180,140,0.4);border-radius:16px;overflow:hidden;margin-bottom:18px;}
+.result-output-label{padding:10px 16px;border-bottom:2px solid rgba(200,180,140,0.3);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:rgba(160,120,60,0.6);}
+.result-output-vis{height:140px;display:flex;align-items:center;justify-content:center;}
+.result-btns{display:flex;gap:10px;margin-bottom:22px;}
+.r-btn{flex:1;padding:11px;border-radius:14px;font-size:13px;font-weight:800;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:all 0.15s;}
+.r-btn-ghost{background:rgba(240,220,180,0.4);color:#a07840;border:2px solid rgba(200,160,80,0.3) !important;border:none;}
+.r-btn-ghost:hover{background:rgba(240,220,180,0.7);}
+.r-btn-pri{background:linear-gradient(135deg,#ff8e53,#ff6b6b);color:#fff;box-shadow:0 4px 0 rgba(200,80,30,0.25);}
+.r-btn-pri:hover{transform:translateY(-2px);box-shadow:0 6px 0 rgba(200,80,30,0.25);}
+.related-heading{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:rgba(160,120,60,0.5);margin-bottom:10px;}
+.related-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.related-tile{background:rgba(255,255,255,0.7);border:2.5px solid rgba(200,180,140,0.35);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.15s;}
+.related-tile:hover{border-color:#ffb347;transform:translateY(-3px);box-shadow:0 6px 0 rgba(200,130,20,0.12);}
+.related-cover{height:62px;overflow:hidden;background:#16191f;}
+.related-info{padding:9px 12px;}
+.related-title{font-size:12px;font-weight:800;color:#3d2c1e;}
+.related-meta{font-size:11px;font-weight:600;color:rgba(160,120,60,0.6);margin-top:2px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     SCREEN 1 — LIBRARY
+════════════════════════════════════ -->
+<div id="screen-library" class="screen active">
+  <div class="lib-header">
+    <div class="wordmark">
+      <div class="wordmark-icon">📖</div>
+      <div class="wordmark-text">Dynamo <span>Storybook</span></div>
+    </div>
+    <div class="lib-nav">
+      <div class="lib-nav-link active">Library</div>
+      <div class="lib-nav-link">My Books</div>
+      <div class="lib-nav-link">Community</div>
+    </div>
+    <button class="lib-new-btn">+ New Book</button>
+    <div class="lib-avatar">AL</div>
+  </div>
+  <div class="lib-toolbar">
+    <div class="lib-search-wrap">
+      <span class="lib-search-icon">🔍</span>
+      <input class="lib-search" placeholder="Search graphs, topics, authors…"/>
+    </div>
+    <button class="fpill active" onclick="setFilter(this)">All</button>
+    <button class="fpill" onclick="setFilter(this)">My Org</button>
+    <button class="fpill" onclick="setFilter(this)">Community</button>
+    <button class="fpill" onclick="setFilter(this)">Structure</button>
+    <button class="fpill" onclick="setFilter(this)">Geometry</button>
+    <button class="fpill" onclick="setFilter(this)">Data</button>
+  </div>
+
+  <div class="room-title" style="padding-top:20px;">Structure &amp; Floors</div>
+  <div class="shelf-wrap">
+    <div class="shelf">
+      <div class="bookend" style="height:110px;"></div>
+      <div class="book bk-blue" style="height:140px;width:46px;" onclick="goToCover()"><div class="book-title-s">Floor Slab Offsetting</div><div class="book-auth-s">A. Kim</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Floor Slab Offsetting</div><div class="bt-a">Aisha Kim · Gensler</div><div class="bt-r"><span class="bt-p">📖 8 steps</span><span class="bt-c t-input">Structure</span></div></div></div>
+      <div class="book bk-purple" style="height:122px;width:34px;" onclick="goToCover()"><div class="book-title-s">Wall Height Adj.</div><div class="book-auth-s">M. Ricci</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Wall Height Adjustment</div><div class="bt-a">Marco Ricci · Community</div><div class="bt-r"><span class="bt-p">📖 6 steps</span><span class="bt-c t-logic">Structure</span></div></div></div>
+      <div class="book bk-orange" style="height:150px;width:52px;" onclick="goToCover()"><div class="book-title-s">Column Grid Placement</div><div class="book-auth-s">Z. Han</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Column Grid Placement</div><div class="bt-a">Zoe Han · BIG</div><div class="bt-r"><span class="bt-p">📖 10 steps</span><span class="bt-c t-logic">Structure</span></div></div></div>
+      <div class="book bk-green" style="height:116px;width:34px;" onclick="goToCover()"><div class="book-title-s">Structural Framing</div><div class="book-auth-s">P. Chen</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Structural Framing from Grids</div><div class="bt-a">Priya Chen · HOK</div><div class="bt-r"><span class="bt-p">📖 7 steps</span><span class="bt-c t-output">Structure</span></div></div></div>
+      <div class="book bk-amber" style="height:134px;width:42px;" onclick="goToCover()"><div class="book-title-s">Stair Run Generator</div><div class="book-auth-s">T. Okafor</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Stair Run Generator</div><div class="bt-a">Tunde Okafor · SOM</div><div class="bt-r"><span class="bt-p">📖 11 steps</span><span class="bt-c t-logic">Structure</span></div></div></div>
+      <div class="book bk-indigo" style="height:108px;width:30px;" onclick="goToCover()"><div class="book-title-s">Beam Depth</div><div class="book-auth-s">S. Park</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Beam Depth Sizing</div><div class="bt-a">Sunmi Park · Community</div><div class="bt-r"><span class="bt-p">📖 5 steps</span><span class="bt-c t-input">Structure</span></div></div></div>
+      <div class="book bk-teal" style="height:144px;width:48px;" onclick="goToCover()"><div class="book-title-s">Level Datum Mgmt</div><div class="book-auth-s">A. Kim</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Level Datum Management</div><div class="bt-a">Aisha Kim · Gensler</div><div class="bt-r"><span class="bt-p">📖 9 steps</span><span class="bt-c t-logic">Structure</span></div></div></div>
+      <div class="bookend" style="height:95px;background:linear-gradient(180deg,#b07040,#806020);"></div>
+      <div class="shelf-space"></div>
+    </div>
+  </div>
+  <div class="shelf-gap"></div>
+
+  <div class="room-title">Geometry &amp; Form</div>
+  <div class="shelf-wrap">
+    <div class="shelf">
+      <div class="bookend" style="height:118px;background:linear-gradient(180deg,#c08050,#906030);"></div>
+      <div class="book bk-pink" style="height:155px;width:52px;" onclick="goToCover()"><div class="book-title-s">Adaptive Facade Panelisation</div><div class="book-auth-s">Z. Han</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Adaptive Facade Panelisation</div><div class="bt-a">Zoe Han · BIG</div><div class="bt-r"><span class="bt-p">📖 15 steps</span><span class="bt-c t-logic">Geometry</span></div></div></div>
+      <div class="book bk-cyan" style="height:126px;width:36px;" onclick="goToCover()"><div class="book-title-s">Surface UV Division</div><div class="book-auth-s">M. Ricci</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Surface UV Division</div><div class="bt-a">Marco Ricci · Community</div><div class="bt-r"><span class="bt-p">📖 8 steps</span><span class="bt-c t-logic">Geometry</span></div></div></div>
+      <div class="book bk-orange" style="height:140px;width:44px;" onclick="goToCover()"><div class="book-title-s">Attractor Point Fields</div><div class="book-auth-s">L. Novak</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Attractor Point Fields</div><div class="bt-a">Lena Novak · Zaha Hadid</div><div class="bt-r"><span class="bt-p">📖 12 steps</span><span class="bt-c t-logic">Geometry</span></div></div></div>
+      <div class="book bk-lime" style="height:114px;width:32px;" onclick="goToCover()"><div class="book-title-s">Loft from Curves</div><div class="book-auth-s">P. Chen</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Loft from Curves</div><div class="bt-a">Priya Chen · HOK</div><div class="bt-r"><span class="bt-p">📖 6 steps</span><span class="bt-c t-output">Geometry</span></div></div></div>
+      <div class="book bk-purple" style="height:148px;width:50px;" onclick="goToCover()"><div class="book-title-s">Voronoi Ceiling Pattern</div><div class="book-auth-s">L. Novak</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Voronoi Ceiling Pattern</div><div class="bt-a">Lena Novak · Community</div><div class="bt-r"><span class="bt-p">📖 13 steps</span><span class="bt-c t-logic">Geometry</span></div></div></div>
+      <div class="book bk-blue" style="height:124px;width:36px;" onclick="goToCover()"><div class="book-title-s">Curve Offset Array</div><div class="book-auth-s">T. Okafor</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Curve Offset Array</div><div class="bt-a">Tunde Okafor · SOM</div><div class="bt-r"><span class="bt-p">📖 7 steps</span><span class="bt-c t-logic">Geometry</span></div></div></div>
+      <div class="bookend" style="height:98px;background:linear-gradient(180deg,#a06840,#705030);"></div>
+      <div class="shelf-space"></div>
+    </div>
+  </div>
+  <div class="shelf-gap"></div>
+
+  <div class="room-title">Data &amp; Parameters</div>
+  <div class="shelf-wrap">
+    <div class="shelf">
+      <div class="bookend" style="height:104px;"></div>
+      <div class="book bk-lime" style="height:144px;width:48px;" onclick="goToCover()"><div class="book-title-s">Room Numbering Auto.</div><div class="book-auth-s">M. Ricci</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Room Numbering Automation</div><div class="bt-a">Marco Ricci · Community</div><div class="bt-r"><span class="bt-p">📖 12 steps</span><span class="bt-c t-output">Data</span></div></div></div>
+      <div class="book bk-amber" style="height:118px;width:32px;" onclick="goToCover()"><div class="book-title-s">Param Batch Rename</div><div class="book-auth-s">S. Park</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Parameter Batch Rename</div><div class="bt-a">Sunmi Park · Community</div><div class="bt-r"><span class="bt-p">📖 5 steps</span><span class="bt-c t-input">Data</span></div></div></div>
+      <div class="book bk-pink" style="height:136px;width:44px;" onclick="goToCover()"><div class="book-title-s">Schedule to Excel</div><div class="book-auth-s">A. Kim</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Schedule to Excel Export</div><div class="bt-a">Aisha Kim · Gensler</div><div class="bt-r"><span class="bt-p">📖 9 steps</span><span class="bt-c t-output">Data</span></div></div></div>
+      <div class="book bk-teal" style="height:116px;width:32px;" onclick="goToCover()"><div class="book-title-s">Element Filter</div><div class="book-auth-s">P. Chen</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Element Type Filter</div><div class="bt-a">Priya Chen · HOK</div><div class="bt-r"><span class="bt-p">📖 6 steps</span><span class="bt-c t-logic">Data</span></div></div></div>
+      <div class="book bk-indigo" style="height:150px;width:52px;" onclick="goToCover()"><div class="book-title-s">Area Calculation &amp; Reporting</div><div class="book-auth-s">T. Okafor</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Area Calculation &amp; Reporting</div><div class="bt-a">Tunde Okafor · SOM</div><div class="bt-r"><span class="bt-p">📖 14 steps</span><span class="bt-c t-output">Data</span></div></div></div>
+      <div class="book bk-rose" style="height:126px;width:38px;" onclick="goToCover()"><div class="book-title-s">Family Type Swap</div><div class="book-auth-s">Z. Han</div><div class="book-dot"></div><div class="book-tip"><div class="bt-t">Family Type Swap</div><div class="bt-a">Zoe Han · Community</div><div class="bt-r"><span class="bt-p">📖 8 steps</span><span class="bt-c t-logic">Data</span></div></div></div>
+      <div class="bookend" style="height:94px;background:linear-gradient(180deg,#b07050,#806040);"></div>
+      <div class="shelf-space"></div>
+    </div>
+  </div>
+  <div style="height:40px;"></div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN 2 — BOOK COVER
+════════════════════════════════════ -->
+<div id="screen-cover" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('library')">← Library</button>
+    <div style="flex:1;font-size:15px;font-weight:900;color:#3d2c1e;">Floor Slab Offsetting</div>
+  </div>
+  <div class="cover-layout">
+    <div class="cover-left">
+      <div class="cover-graph-box">
+        <svg width="100%" height="100%" viewBox="0 0 380 230" xmlns="http://www.w3.org/2000/svg">
+          <rect width="380" height="230" fill="#16191f"/>
+          <defs><pattern id="gp" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0L0 0 0 20" fill="none" stroke="#1c1f26" stroke-width="0.5"/></pattern></defs>
+          <rect width="380" height="230" fill="url(#gp)"/>
+          <rect x="18" y="24" width="80" height="26" rx="4" fill="#1e2838" stroke="#4f8ef7" stroke-width="1.5"/><text x="58" y="41" fill="#93c5fd" font-size="9" text-anchor="middle">Floor Levels</text>
+          <rect x="18" y="62" width="80" height="26" rx="4" fill="#1e2838" stroke="#4f8ef7" stroke-width="1.5"/><text x="58" y="79" fill="#93c5fd" font-size="9" text-anchor="middle">Offset Distance</text>
+          <rect x="18" y="100" width="80" height="26" rx="4" fill="#1e2838" stroke="#4f8ef7" stroke-width="1.5"/><text x="58" y="117" fill="#93c5fd" font-size="9" text-anchor="middle">Direction Vector</text>
+          <rect x="138" y="44" width="82" height="26" rx="4" fill="#2a2418" stroke="#fbbf24" stroke-width="1.5"/><text x="179" y="61" fill="#fbbf24" font-size="9" text-anchor="middle">List.Map</text>
+          <rect x="138" y="84" width="82" height="26" rx="4" fill="#2a2418" stroke="#fbbf24" stroke-width="1.5"/><text x="179" y="101" fill="#fbbf24" font-size="9" text-anchor="middle">Vector.Scale</text>
+          <rect x="138" y="124" width="82" height="26" rx="4" fill="#2a2418" stroke="#fbbf24" stroke-width="1.5"/><text x="179" y="141" fill="#fbbf24" font-size="9" text-anchor="middle">Flatten</text>
+          <rect x="264" y="64" width="90" height="26" rx="4" fill="#1a2820" stroke="#34d399" stroke-width="1.5"/><text x="309" y="81" fill="#34d399" font-size="9" text-anchor="middle">Element.Move</text>
+          <rect x="264" y="104" width="90" height="26" rx="4" fill="#1a2820" stroke="#34d399" stroke-width="1.5"/><text x="309" y="121" fill="#34d399" font-size="9" text-anchor="middle">FloorType.ByLvl</text>
+          <path d="M98 37 Q118 37 138 57" stroke="#4f8ef7" stroke-width="1.2" fill="none" opacity="0.7"/>
+          <path d="M98 75 L138 75" stroke="#4f8ef7" stroke-width="1.2" fill="none" opacity="0.7"/>
+          <path d="M98 113 Q118 113 138 137" stroke="#4f8ef7" stroke-width="1.2" fill="none" opacity="0.7"/>
+          <path d="M220 57 Q242 57 264 77" stroke="#fbbf24" stroke-width="1.2" fill="none" opacity="0.7"/>
+          <path d="M220 97 L264 97" stroke="#fbbf24" stroke-width="1.2" fill="none" opacity="0.7"/>
+          <path d="M220 137 Q242 137 264 117" stroke="#fbbf24" stroke-width="1.2" fill="none" opacity="0.7"/>
+          <rect x="10" y="14" width="98" height="124" rx="6" fill="none" stroke="#4f8ef7" stroke-width="0.7" stroke-dasharray="4,3" opacity="0.4"/>
+          <rect x="128" y="34" width="102" height="128" rx="6" fill="none" stroke="#fbbf24" stroke-width="0.7" stroke-dasharray="4,3" opacity="0.4"/>
+          <rect x="254" y="54" width="110" height="88" rx="6" fill="none" stroke="#34d399" stroke-width="0.7" stroke-dasharray="4,3" opacity="0.4"/>
+          <text x="14" y="148" fill="#4f8ef7" font-size="8" opacity="0.5">Inputs</text>
+          <text x="132" y="172" fill="#fbbf24" font-size="8" opacity="0.5">Logic</text>
+          <text x="258" y="152" fill="#34d399" font-size="8" opacity="0.5">Output</text>
+        </svg>
+      </div>
+      <div class="cov-author-card">
+        <div class="cov-ava">AK</div>
+        <div><div class="cov-name">Aisha Kim</div><div class="cov-org">Senior BIM Architect · Gensler</div></div>
+      </div>
+      <div class="cov-tags">
+        <span class="cov-tag">Structure</span><span class="cov-tag">Floors</span><span class="cov-tag">Revit 2024</span>
+        <span class="cov-tag" style="background:#f3e8ff;color:#9061f9;border-color:#e9d5ff;">Org</span>
+      </div>
+      <button class="save-btn">♡ &nbsp;Save to My Library</button>
+    </div>
+    <div class="cover-right">
+      <div class="cov-title">Floor Slab Offsetting</div>
+      <div class="cov-desc">This graph takes a list of floor levels and an offset distance, then moves each slab vertically to match a new datum. It turns 30 minutes of manual edits into a single run.</div>
+      <div class="cov-stats">
+        <div class="cov-stat"><div class="cov-stat-val">8</div><div class="cov-stat-lbl">Pages</div></div>
+        <div class="cov-stat"><div class="cov-stat-val">1.2k</div><div class="cov-stat-lbl">Reads</div></div>
+        <div class="cov-stat"><div class="cov-stat-val">~6 min</div><div class="cov-stat-lbl">Read time</div></div>
+        <div class="cov-stat"><div class="cov-stat-val">Mar 17</div><div class="cov-stat-lbl">Updated</div></div>
+      </div>
+      <div class="toc-heading">Table of Contents</div>
+      <div class="toc-list">
+        <div class="toc-row" onclick="jumpTo(0)"><span class="toc-num">0</span><span class="toc-name">Introduction</span><span class="toc-type t-intro">Intro</span></div>
+        <div class="toc-row" onclick="jumpTo(1)"><span class="toc-num">1</span><span class="toc-name">Selecting the floor levels</span><span class="toc-type t-input">Input</span></div>
+        <div class="toc-row" onclick="jumpTo(2)"><span class="toc-num">2</span><span class="toc-name">Setting the offset distance</span><span class="toc-type t-input">Input</span></div>
+        <div class="toc-row" onclick="jumpTo(3)"><span class="toc-num">3</span><span class="toc-name">Defining the movement direction</span><span class="toc-type t-logic">Logic</span></div>
+        <div class="toc-row" onclick="jumpTo(4)"><span class="toc-num">4</span><span class="toc-name">Mapping the offset across all floors</span><span class="toc-type t-logic">Logic</span></div>
+        <div class="toc-row" onclick="jumpTo(5)"><span class="toc-num">5</span><span class="toc-name">Scaling the vector per level</span><span class="toc-type t-logic">Logic</span></div>
+        <div class="toc-row" onclick="jumpTo(6)"><span class="toc-num">6</span><span class="toc-name">Flattening the list for output</span><span class="toc-type t-logic">Logic</span></div>
+        <div class="toc-row" onclick="jumpTo(7)"><span class="toc-num">7</span><span class="toc-name">Moving elements in Revit</span><span class="toc-type t-output">Output</span></div>
+      </div>
+      <button class="open-btn" onclick="openReader()">📖 &nbsp;Open Book</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN 3 — BOOK READER
+════════════════════════════════════ -->
+<div id="screen-reader" class="screen">
+  <div class="reader-topbar">
+    <button class="back-btn" onclick="showScreen('cover')">← Back</button>
+    <div class="reader-book-name">Floor Slab Offsetting</div>
+    <div class="reader-progress-text" id="reader-prog-text">Page 1 of 8</div>
+    <button class="toc-toggle-btn" onclick="toggleToc()">☰ Contents</button>
+  </div>
+
+  <div class="reader-stage" onclick="closeTocOnOutside(event)">
+    <div class="book-spread">
+
+      <!-- LEFT PAGE: graph -->
+      <div class="page-left" id="page-left">
+        <div class="page-ornament">
+          <div class="ornament-line"></div>
+          <span class="ornament-center" id="chapter-label-left">Chapter 1</span>
+          <div class="ornament-line"></div>
+        </div>
+        <div class="page-graph-area" id="graph-area">
+          <!-- rendered by JS -->
+        </div>
+        <div class="page-legend" id="page-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#4f8ef7;"></div>Input</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fbbf24;"></div>Logic</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#34d399;"></div>Output</div>
+        </div>
+        <div class="page-num-left" id="page-num-l">— 1 —</div>
+      </div>
+
+      <!-- SPINE -->
+      <div class="book-gutter"></div>
+
+      <!-- RIGHT PAGE: story (with perspective for 3D flip) -->
+      <div class="page-right-wrap">
+        <div class="page-right" id="page-right">
+          <!-- filled by renderStep() -->
+        </div>
+
+        <!-- FLIP LAYER (shown only during animation) -->
+        <div id="flip-layer">
+          <div class="flip-face" id="flip-front">
+            <div class="flip-shadow"></div>
+          </div>
+          <div class="flip-face" id="flip-back"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TOC popover -->
+    <div class="toc-popover" id="toc-popover" style="display:none;">
+      <div class="toc-pop-title">Chapters</div>
+      <div id="toc-pop-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN 4 — RESULT
+════════════════════════════════════ -->
+<div id="screen-result" class="screen">
+  <div class="reader-topbar">
+    <button class="back-btn" onclick="showScreen('cover')">← Back</button>
+    <div class="reader-book-name">Floor Slab Offsetting</div>
+    <div class="reader-progress-text" style="color:#4ade80;">Finished! 🎉</div>
+  </div>
+  <div class="result-stage">
+    <div class="result-book">
+      <div class="result-banner">
+        <div class="result-bang">🎉</div>
+        <div><h3>You've finished the story!</h3><p>All 8 steps complete — you understand this graph from start to finish.</p></div>
+      </div>
+      <div class="result-output">
+        <div class="result-output-label">Output — What this graph produced</div>
+        <div class="result-output-vis">
+          <svg width="380" height="120" viewBox="0 0 380 120">
+            <text x="52" y="14" fill="#c0a080" font-size="10" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="700">Before</text>
+            <text x="252" y="14" fill="#c0a080" font-size="10" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="700">After</text>
+            <line x1="168" y1="8" x2="168" y2="112" stroke="rgba(200,160,80,0.3)" stroke-width="2" stroke-dasharray="4,3"/>
+            <rect x="12" y="22" width="80" height="9" rx="3" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+            <rect x="12" y="36" width="80" height="9" rx="3" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+            <rect x="12" y="50" width="80" height="9" rx="3" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+            <rect x="12" y="64" width="80" height="9" rx="3" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+            <rect x="12" y="78" width="80" height="9" rx="3" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+            <rect x="186" y="18" width="80" height="9" rx="3" fill="#dcfce7" stroke="#4ade80" stroke-width="1.5"/>
+            <rect x="186" y="36" width="80" height="9" rx="3" fill="#dcfce7" stroke="#4ade80" stroke-width="1.5"/>
+            <rect x="186" y="56" width="80" height="9" rx="3" fill="#dcfce7" stroke="#4ade80" stroke-width="1.5"/>
+            <rect x="186" y="78" width="80" height="9" rx="3" fill="#dcfce7" stroke="#4ade80" stroke-width="1.5"/>
+            <rect x="186" y="100" width="80" height="9" rx="3" fill="#dcfce7" stroke="#4ade80" stroke-width="1.5"/>
+            <defs><marker id="a2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0L0,6L6,3z" fill="#f97316"/></marker></defs>
+            <path d="M96 54 L162 54" stroke="#f97316" stroke-width="2" marker-end="url(#a2)" fill="none"/>
+            <text x="129" y="47" fill="#f97316" font-size="9" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800">+600mm</text>
+          </svg>
+        </div>
+      </div>
+      <div class="result-btns">
+        <button class="r-btn r-btn-ghost" onclick="currentStep=0;openReader();">↺ Read again</button>
+        <button class="r-btn r-btn-pri">↓ Download .dyn</button>
+      </div>
+      <div class="related-heading">You might also like</div>
+      <div class="related-grid">
+        <div class="related-tile" onclick="goToCover()">
+          <div class="related-cover"><svg width="100%" height="62" viewBox="0 0 280 62"><rect width="280" height="62" fill="#16191f"/><rect x="12" y="14" width="54" height="20" rx="3" fill="#1e2838" stroke="#4f8ef7" stroke-width="1.2"/><rect x="80" y="9" width="54" height="20" rx="3" fill="#2a2418" stroke="#fbbf24" stroke-width="1.2"/><rect x="80" y="34" width="54" height="20" rx="3" fill="#2a2418" stroke="#fbbf24" stroke-width="1.2"/><rect x="150" y="22" width="62" height="20" rx="3" fill="#1a2820" stroke="#34d399" stroke-width="1.2"/></svg></div>
+          <div class="related-info"><div class="related-title">Wall Height Adjustment</div><div class="related-meta">6 steps · Marco Ricci</div></div>
+        </div>
+        <div class="related-tile" onclick="goToCover()">
+          <div class="related-cover"><svg width="100%" height="62" viewBox="0 0 280 62"><rect width="280" height="62" fill="#16191f"/><rect x="12" y="10" width="48" height="18" rx="3" fill="#1e2838" stroke="#4f8ef7" stroke-width="1.2"/><rect x="12" y="32" width="48" height="18" rx="3" fill="#1e2838" stroke="#4f8ef7" stroke-width="1.2"/><rect x="76" y="21" width="56" height="18" rx="3" fill="#2a2418" stroke="#fbbf24" stroke-width="1.2"/><rect x="148" y="29" width="66" height="18" rx="3" fill="#1a2820" stroke="#34d399" stroke-width="1.2"/></svg></div>
+          <div class="related-info"><div class="related-title">Column Grid Placement</div><div class="related-meta">10 steps · Zoe Han</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Step data ── */
+const STEPS=[
+  {title:'Introduction — What this graph does',label:'Introduction',pill:'Intro',pillBg:'#f3e8ff',pillColor:'#9061f9',pillBorder:'#e9d5ff',text:'This graph automates moving floor slabs to a new vertical datum. Instead of editing each floor one by one in Revit, you run this graph once and all floors shift together. It takes three inputs — which floors to move, how far, and in which direction.',callouts:[],hl:'none'},
+  {title:'Selecting the floor levels',label:'Chapter 1',pill:'Step 1 · Input',pillBg:'#dbeafe',pillColor:'#3b82f6',pillBorder:'#bfdbfe',text:'The first node collects the floors you want to move. You select them directly in Revit, and they come into Dynamo as a list of elements. The order doesn\'t matter — the graph will process all of them.',callouts:[{k:'Node',v:'Select Model Elements'},{k:'Input',v:'Your selected floor slabs'},{k:'Output',v:'A list of Revit floors'}],hl:'input'},
+  {title:'Setting the offset distance',label:'Chapter 2',pill:'Step 2 · Input',pillBg:'#dbeafe',pillColor:'#3b82f6',pillBorder:'#bfdbfe',text:'A number slider controls how far each floor moves. The value is in millimeters. Setting 600 means every floor shifts 600mm. You can change this without touching anything else.',callouts:[{k:'Node',v:'Number Slider'},{k:'Value',v:'600 mm by default'},{k:'Tip',v:'Positive = up, negative = down'}],hl:'input'},
+  {title:'Defining the movement direction',label:'Chapter 3',pill:'Step 3 · Logic',pillBg:'#fef9c3',pillColor:'#d97706',pillBorder:'#fde68a',text:'A direction vector tells the graph which way to move. A Z vector of (0,0,1) means straight up. You could change this to move floors diagonally too.',callouts:[{k:'Node',v:'Vector.ZAxis'},{k:'Value',v:'(0, 0, 1) — pointing up'},{k:'Effect',v:'Floors move in this direction × offset'}],hl:'logic'},
+  {title:'Mapping the offset across all floors',label:'Chapter 4',pill:'Step 4 · Logic',pillBg:'#fef9c3',pillColor:'#d97706',pillBorder:'#fde68a',text:'List.Map is the engine. Instead of running the offset once, it repeats the same function for every floor automatically. Think of it as a "for each floor, do this" instruction.',callouts:[{k:'Input (list)',v:'All selected floor levels'},{k:'Input (fn)',v:'The offset + move operation'},{k:'Output',v:'One result per floor, same order'}],hl:'logic'},
+  {title:'Scaling the vector per level',label:'Chapter 5',pill:'Step 5 · Logic',pillBg:'#fef9c3',pillColor:'#d97706',pillBorder:'#fde68a',text:'Vector.Scale multiplies the direction by the offset distance. A unit Z vector × 600 becomes a movement of exactly 600mm upward. This combines "which direction" with "how far".',callouts:[{k:'Input',v:'Direction vector (0,0,1)'},{k:'Scale',v:'600 from the number slider'},{k:'Output',v:'A vector of magnitude 600 upward'}],hl:'logic'},
+  {title:'Flattening the list for output',label:'Chapter 6',pill:'Step 6 · Logic',pillBg:'#fef9c3',pillColor:'#d97706',pillBorder:'#fde68a',text:'List.Map produces a nested list — a list of lists. The Flatten node collapses it into one flat list so the output nodes can work with it directly.',callouts:[{k:'Input',v:'Nested list [ [r1], [r2], … ]'},{k:'Output',v:'Flat list [ r1, r2, … ]'}],hl:'logic'},
+  {title:'Moving elements in Revit',label:'Chapter 7',pill:'Step 7 · Output',pillBg:'#dcfce7',pillColor:'#16a34a',pillBorder:'#86efac',text:'Element.Move is where it happens in Revit. It takes each floor and the movement vector and physically translates it in the model. Once this runs, your floors have moved.',callouts:[{k:'Input',v:'Flat list of floor slabs'},{k:'Vector',v:'600mm upward from Step 5'},{k:'Output',v:'Floors moved ✓ Revit model updated'}],hl:'output'},
+];
+
+let currentStep=0;
+let isFlipping=false;
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');}
+function goToCover(){showScreen('cover');}
+function jumpTo(i){currentStep=i;openReader();}
+function openReader(){renderStep();showScreen('reader');}
+function setFilter(el){document.querySelectorAll('.fpill').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
+
+/* ── TOC popover ── */
+let tocOpen=false;
+function toggleToc(){tocOpen=!tocOpen;const p=document.getElementById('toc-popover');if(tocOpen){buildTocPopover();p.style.display='block';}else{p.style.display='none';}}
+function closeTocOnOutside(e){if(tocOpen&&!e.target.closest('.toc-popover')&&!e.target.closest('.toc-toggle-btn')){tocOpen=false;document.getElementById('toc-popover').style.display='none';}}
+function buildTocPopover(){
+  const list=document.getElementById('toc-pop-list');
+  list.innerHTML='';
+  STEPS.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='toc-pop-row'+(i===currentStep?' active':i<currentStep?' done':'');
+    d.innerHTML=`<div class="toc-pop-num">${i<currentStep?'✓':i+1}</div><div class="toc-pop-name">${s.label}</div>`;
+    d.onclick=()=>{currentStep=i;renderStep();tocOpen=false;document.getElementById('toc-popover').style.display='none';};
+    list.appendChild(d);
+  });
+}
+
+/* ── Render current step ── */
+function renderStep(){
+  const s=STEPS[currentStep];
+  const total=STEPS.length;
+
+  document.getElementById('reader-prog-text').textContent=`Page ${currentStep+1} of ${total}`;
+  document.getElementById('chapter-label-left').textContent=s.label;
+  document.getElementById('page-num-l').textContent=`— ${currentStep*2+1} —`;
+
+  renderGraph(s.hl);
+  renderRightPage(document.getElementById('page-right'),s,currentStep,total);
+}
+
+function renderRightPage(container,s,idx,total){
+  const calloutHTML=s.callouts.map(c=>`<div class="callout-item"><div class="callout-k">${c.k}</div><div class="callout-v">${c.v}</div></div>`).join('');
+  container.innerHTML=`
+    <div class="page-ornament">
+      <div class="ornament-line"></div>
+      <span class="ornament-center">Floor Slab Offsetting</span>
+      <div class="ornament-line"></div>
+    </div>
+    <div class="step-type-pill" style="background:${s.pillBg};color:${s.pillColor};border-color:${s.pillBorder};">● ${s.pill}</div>
+    <div class="right-page-title">${s.title}</div>
+    <div class="right-page-text">${s.text}</div>
+    ${calloutHTML?`<div class="callouts-area">${calloutHTML}</div>`:''}
+    <div class="page-footer">
+      <button class="pg-btn pg-btn-prev" onclick="stepNav(-1)" ${idx===0?'disabled':''}>← Prev</button>
+      <div class="pg-num">— ${idx*2+2} —</div>
+      <button class="pg-btn pg-btn-next" onclick="stepNav(1)">${idx===total-1?'Finish ✦':'Next →'}</button>
+    </div>
+  `;
+}
+
+/* ── Step navigation with page flip ── */
+function stepNav(dir){
+  if(isFlipping) return;
+  if(dir===1&&currentStep===STEPS.length-1){showScreen('result');return;}
+  const nextStep=Math.max(0,Math.min(STEPS.length-1,currentStep+dir));
+  if(nextStep===currentStep) return;
+
+  isFlipping=true;
+  const flipLayer=document.getElementById('flip-layer');
+  const flipFront=document.getElementById('flip-front');
+
+  /* Snapshot current right-page content into flip-front */
+  const currentHTML=document.getElementById('page-right').innerHTML;
+  /* Keep the shadow div, add content after it */
+  flipFront.innerHTML=`<div class="flip-shadow"></div><div style="position:absolute;inset:0;padding:28px 28px 18px 22px;display:flex;flex-direction:column;pointer-events:none;">${currentHTML}</div>`;
+
+  /* Update underlying page-right with new step content BEFORE animation */
+  currentStep=nextStep;
+  renderStep();
+
+  /* Show flip layer and trigger animation */
+  flipLayer.style.display='block';
+  /* Force reflow so animation triggers */
+  flipLayer.offsetHeight;
+
+  const animClass=dir>0?'flipping-fwd':'flipping-bwd';
+  flipLayer.classList.add(animClass);
+
+  const duration=dir>0?650:550;
+  setTimeout(()=>{
+    flipLayer.style.display='none';
+    flipLayer.classList.remove(animClass);
+    isFlipping=false;
+  },duration);
+}
+
+/* ── Graph SVG renderer ── */
+function renderGraph(hl){
+  const iS=hl==='input'?'#4f8ef7':'rgba(79,142,247,0.2)';
+  const lS=hl==='logic'?'#fbbf24':'rgba(251,191,36,0.2)';
+  const oS=hl==='output'?'#34d399':'rgba(52,211,153,0.2)';
+  const iT=hl==='input'?'#93c5fd':'rgba(79,142,247,0.3)';
+  const lT=hl==='logic'?'#fbbf24':'rgba(251,191,36,0.3)';
+  const oT=hl==='output'?'#34d399':'rgba(52,211,153,0.3)';
+  const iF=hl==='input'?'#1e2838':'#181c22';
+  const lF=hl==='logic'?'#2a2418':'#1e1c14';
+  const oF=hl==='output'?'#1a2820':'#141c18';
+  const iW=hl==='input'?'2':'1';
+  const lW=hl==='logic'?'2':'1';
+  const oW=hl==='output'?'2':'1';
+  const glow=hl!=='none'?'<filter id="gw"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>':'';
+  const ga=hl!=='none'?'filter="url(#gw)"':'';
+
+  document.getElementById('graph-area').innerHTML=`
+  <svg width="100%" height="100%" viewBox="0 0 440 280" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+    <rect width="440" height="280" fill="#16191f"/>
+    <defs>
+      <pattern id="gg" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M18 0L0 0 0 18" fill="none" stroke="#1c1f26" stroke-width="0.5"/></pattern>
+      ${glow}
+    </defs>
+    <rect width="440" height="280" fill="url(#gg)"/>
+    <!-- group boxes -->
+    <rect x="18" y="18" width="102" height="186" rx="7" fill="transparent" stroke="${iS}" stroke-width="0.8" stroke-dasharray="5,4" opacity="${hl==='input'?'0.8':'0.35'}"/>
+    <text x="23" y="12" fill="${iT}" font-size="9" font-weight="700">Inputs</text>
+    <rect x="162" y="34" width="108" height="186" rx="7" fill="transparent" stroke="${lS}" stroke-width="0.8" stroke-dasharray="5,4" opacity="${hl==='logic'?'0.8':'0.35'}"/>
+    <text x="167" y="28" fill="${lT}" font-size="9" font-weight="700">Logic</text>
+    <rect x="316" y="52" width="112" height="136" rx="7" fill="transparent" stroke="${oS}" stroke-width="0.8" stroke-dasharray="5,4" opacity="${hl==='output'?'0.8':'0.35'}"/>
+    <text x="321" y="46" fill="${oT}" font-size="9" font-weight="700">Output</text>
+    <!-- input nodes -->
+    <rect x="26" y="30" width="88" height="30" rx="5" fill="${iF}" stroke="${iS}" stroke-width="${iW}" ${hl==='input'?ga:''}/>
+    <text x="70" y="49" fill="${iT}" font-size="9" text-anchor="middle">Floor Levels</text>
+    <rect x="26" y="74" width="88" height="30" rx="5" fill="${iF}" stroke="${iS}" stroke-width="${iW}" ${hl==='input'?ga:''}/>
+    <text x="70" y="93" fill="${iT}" font-size="9" text-anchor="middle">Offset Distance</text>
+    <rect x="26" y="118" width="88" height="30" rx="5" fill="${iF}" stroke="${iS}" stroke-width="${iW}" ${hl==='input'?ga:''}/>
+    <text x="70" y="137" fill="${iT}" font-size="9" text-anchor="middle">Direction Vector</text>
+    <!-- logic nodes -->
+    <rect x="170" y="46" width="94" height="30" rx="5" fill="${lF}" stroke="${lS}" stroke-width="${lW}" ${hl==='logic'?ga:''}/>
+    <text x="217" y="65" fill="${lT}" font-size="9" text-anchor="middle">List.Map</text>
+    <rect x="170" y="92" width="94" height="30" rx="5" fill="${lF}" stroke="${lS}" stroke-width="${lW}" ${hl==='logic'?ga:''}/>
+    <text x="217" y="111" fill="${lT}" font-size="9" text-anchor="middle">Vector.Scale</text>
+    <rect x="170" y="138" width="94" height="30" rx="5" fill="${lF}" stroke="${lS}" stroke-width="${lW}" ${hl==='logic'?ga:''}/>
+    <text x="217" y="157" fill="${lT}" font-size="9" text-anchor="middle">Flatten</text>
+    <!-- output nodes -->
+    <rect x="324" y="64" width="96" height="30" rx="5" fill="${oF}" stroke="${oS}" stroke-width="${oW}" ${hl==='output'?ga:''}/>
+    <text x="372" y="83" fill="${oT}" font-size="9" text-anchor="middle">Element.Move</text>
+    <rect x="324" y="108" width="96" height="30" rx="5" fill="${oF}" stroke="${oS}" stroke-width="${oW}" ${hl==='output'?ga:''}/>
+    <text x="372" y="127" fill="${oT}" font-size="9" text-anchor="middle">FloorType.ByLvl</text>
+    <!-- connectors -->
+    <path d="M114 45 Q138 45 170 61" stroke="${iS}" stroke-width="1.2" fill="none" opacity="${hl==='input'?'0.9':'0.2'}"/>
+    <path d="M114 89 L170 89" stroke="${iS}" stroke-width="1.2" fill="none" opacity="${hl==='input'?'0.9':'0.2'}"/>
+    <path d="M114 133 Q138 133 170 153" stroke="${iS}" stroke-width="1.2" fill="none" opacity="${hl==='input'?'0.9':'0.2'}"/>
+    <path d="M264 61 Q294 61 324 79" stroke="${lS}" stroke-width="1.2" fill="none" opacity="${hl==='logic'?'0.9':'0.15'}"/>
+    <path d="M264 107 L324 107" stroke="${lS}" stroke-width="1.2" fill="none" opacity="${hl==='logic'?'0.9':'0.15'}"/>
+    <path d="M264 153 Q294 153 324 123" stroke="${lS}" stroke-width="1.2" fill="none" opacity="${hl==='logic'?'0.9':'0.15'}"/>
+    <!-- dim bg nodes -->
+    <rect x="26" y="200" width="80" height="22" rx="3" fill="#181c20" stroke="#252830"/>
+    <rect x="170" y="200" width="80" height="22" rx="3" fill="#181c20" stroke="#252830"/>
+    <rect x="324" y="200" width="80" height="22" rx="3" fill="#181c20" stroke="#252830"/>
+  </svg>`;
+}
+
+/* init */
+renderStep();
+</script>
+</body>
+</html>
