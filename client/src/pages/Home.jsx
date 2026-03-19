@@ -1,9 +1,8 @@
 import { useState, useCallback, useRef } from 'react';
 import './Home.css';
 
-function Home() {
+function Home({ onGraphLoaded }) {
   const [isDragging, setIsDragging] = useState(false);
-  const [droppedFile, setDroppedFile] = useState(null);
   const [error, setError] = useState(null);
   const dragCounter = useRef(0);
 
@@ -29,15 +28,27 @@ function Home() {
     }
   }, []);
 
-  const processFile = useCallback((file) => {
+  const readAndLoad = useCallback((file) => {
     if (!file.name.endsWith('.dyn')) {
       setError('Only .dyn files are accepted');
-      setDroppedFile(null);
       return;
     }
     setError(null);
-    setDroppedFile(file);
-  }, []);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        onGraphLoaded(data, file.name);
+      } catch {
+        setError('Failed to parse file — is it a valid .dyn graph?');
+      }
+    };
+    reader.onerror = () => {
+      setError('Failed to read the file');
+    };
+    reader.readAsText(file);
+  }, [onGraphLoaded]);
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
@@ -47,22 +58,17 @@ function Home() {
 
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      processFile(file);
+      readAndLoad(file);
     }
-  }, [processFile]);
+  }, [readAndLoad]);
 
   const handleFileInput = useCallback((e) => {
     const file = e.target.files?.[0];
     if (file) {
-      processFile(file);
+      readAndLoad(file);
     }
     e.target.value = '';
-  }, [processFile]);
-
-  const handleReset = useCallback(() => {
-    setDroppedFile(null);
-    setError(null);
-  }, []);
+  }, [readAndLoad]);
 
   return (
     <div className="home">
@@ -71,62 +77,47 @@ function Home() {
         Load a Dynamo <code>.dyn</code> graph to generate its story
       </p>
 
-      {droppedFile ? (
-        <div className="file-card">
-          <div className="file-card-icon">&#10003;</div>
-          <div className="file-card-details">
-            <p className="file-card-name">{droppedFile.name}</p>
-            <p className="file-card-size">
-              {(droppedFile.size / 1024).toFixed(1)} KB
+      <div className="upload-controls">
+        {/* Drag & drop zone */}
+        <div
+          className={`dropzone ${isDragging ? 'dropzone--active' : ''} ${error ? 'dropzone--error' : ''}`}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="dropzone-inner">
+            <span className="dropzone-icon">
+              {isDragging ? '\u2B07\uFE0F' : '\uD83D\uDCC4'}
+            </span>
+            <p className="dropzone-heading">
+              {isDragging ? 'Drop it here!' : 'Drag & drop'}
+            </p>
+            <p className="dropzone-hint">
+              {isDragging
+                ? 'Release to load your graph'
+                : 'Drop a .dyn file anywhere in this zone'}
             </p>
           </div>
-          <button className="file-card-remove" onClick={handleReset} title="Remove file">
-            &times;
-          </button>
         </div>
-      ) : (
-        <div className="upload-controls">
-          {/* Drag & drop zone */}
-          <div
-            className={`dropzone ${isDragging ? 'dropzone--active' : ''} ${error ? 'dropzone--error' : ''}`}
-            onDragOver={handleDragOver}
-            onDragEnter={handleDragEnter}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <div className="dropzone-inner">
-              <span className="dropzone-icon">
-                {isDragging ? '\u2B07\uFE0F' : '\uD83D\uDCC4'}
-              </span>
-              <p className="dropzone-heading">
-                {isDragging ? 'Drop it here!' : 'Drag & drop'}
-              </p>
-              <p className="dropzone-hint">
-                {isDragging
-                  ? 'Release to load your graph'
-                  : 'Drop a .dyn file anywhere in this zone'}
-              </p>
-            </div>
-          </div>
 
-          <div className="upload-divider">
-            <span>or</span>
-          </div>
-
-          {/* Browse from disk */}
-          <label className="browse-btn">
-            <span className="browse-btn-icon">{'\uD83D\uDCC1'}</span>
-            <span className="browse-btn-text">Browse from disk</span>
-            <span className="browse-btn-hint">Select a .dyn file from your computer</span>
-            <input
-              type="file"
-              accept=".dyn"
-              onChange={handleFileInput}
-              hidden
-            />
-          </label>
+        <div className="upload-divider">
+          <span>or</span>
         </div>
-      )}
+
+        {/* Browse from disk */}
+        <label className="browse-btn">
+          <span className="browse-btn-icon">{'\uD83D\uDCC1'}</span>
+          <span className="browse-btn-text">Browse from disk</span>
+          <span className="browse-btn-hint">Select a .dyn file from your computer</span>
+          <input
+            type="file"
+            accept=".dyn"
+            onChange={handleFileInput}
+            hidden
+          />
+        </label>
+      </div>
 
       {error && <p className="home-error">{error}</p>}
     </div>

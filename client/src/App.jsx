@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import Home from './pages/Home';
 import Stories from './pages/Stories';
@@ -13,16 +13,23 @@ const libraryItems = [
   { id: 'settings', label: 'Settings', icon: '\u2699' },
 ];
 
-const pages = {
-  home: Home,
-  stories: Stories,
-  characters: Characters,
-  settings: Settings,
-};
-
 function App() {
   const [activePage, setActivePage] = useState('home');
-  const ActiveComponent = pages[activePage];
+  const [graphData, setGraphData] = useState(null);
+  const [graphName, setGraphName] = useState(null);
+
+  const handleGraphLoaded = useCallback((data, fileName) => {
+    setGraphData(data);
+    setGraphName(fileName);
+    setActivePage('stories');
+  }, []);
+
+  const pages = {
+    home: <Home onGraphLoaded={handleGraphLoaded} />,
+    stories: <Stories graphData={graphData} graphName={graphName} />,
+    characters: <Characters />,
+    settings: <Settings />,
+  };
 
   return (
     <div className="app">
@@ -32,7 +39,7 @@ function App() {
         onSelect={setActivePage}
       />
       <main className="content">
-        <ActiveComponent />
+        {pages[activePage]}
       </main>
     </div>
   );
