@@ -1,0 +1,427 @@
+/* ================================================================
+   BookCover — two-column book detail view
+   Warm parchment palette: #fef9f0 bg, #3d2c1e headings, #5a4a3a body
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+
+/* ---- Root layout ---- */
+
+.cover-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: #fef9f0;
+  font-family: 'Nunito', sans-serif;
+  min-height: 0;
+}
+
+/* ---- Left column ---- */
+
+.cover-left {
+  width: 42%;
+  min-width: 280px;
+  max-width: 400px;
+  padding: 1.75rem 1.5rem 1.75rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  border-right: 1px solid #e8dcc8;
+  overflow-y: auto;
+  background: #fdf5e8;
+}
+
+/* ---- Right column ---- */
+
+.cover-right {
+  flex: 1;
+  padding: 1.75rem 2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ---- Back button ---- */
+
+.cover-back-btn {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #8b6f47;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  letter-spacing: 0.02em;
+  transition: color 0.15s;
+}
+
+.cover-back-btn:hover {
+  color: #3d2c1e;
+}
+
+/* ---- Graph preview box ---- */
+
+.cover-graph-box {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #16191f;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+  flex-shrink: 0;
+}
+
+.cover-graph-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---- Author card ---- */
+
+.cov-author-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.cov-ava {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.cov-author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.cov-author-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #3d2c1e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cov-author-org {
+  font-size: 0.8rem;
+  color: #8b6f47;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Tags row ---- */
+
+.cov-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cov-tag {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.cov-tag--category {
+  background: #ede3d0;
+  color: #6b4c2a;
+  border: 1px solid #d4bf9a;
+}
+
+.cov-tag--org {
+  background: #e8f0fb;
+  color: #2d5fa8;
+  border: 1px solid #b8ceee;
+}
+
+/* ---- Save button ---- */
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border: 2px solid #c4a46b;
+  border-radius: 10px;
+  background: transparent;
+  color: #7a5520;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  letter-spacing: 0.02em;
+}
+
+.save-btn:hover {
+  background: #f5e8cc;
+  border-color: #a07830;
+  color: #4a2e0a;
+}
+
+.save-btn-icon {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+/* ================================================================
+   Right column elements
+   ================================================================ */
+
+/* ---- Book title ---- */
+
+.cov-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #3d2c1e;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ---- Description ---- */
+
+.cov-desc {
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  color: #5a4a3a;
+  line-height: 1.75;
+  margin: 0;
+}
+
+/* ---- Stats row ---- */
+
+.cov-stats {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  background: #fdf0d8;
+  border: 1px solid #e8d4aa;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  flex-shrink: 0;
+}
+
+.cov-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 0.2rem;
+}
+
+.cov-stat-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #3d2c1e;
+  line-height: 1;
+}
+
+.cov-stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #9a7a50;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cov-stat-divider {
+  width: 1px;
+  height: 36px;
+  background: #e0c89a;
+  flex-shrink: 0;
+}
+
+/* ---- Table of contents ---- */
+
+.toc-heading {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #9a7a50;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #e8d4aa;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.toc-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #f0e2c6;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.toc-row:last-child {
+  border-bottom: none;
+}
+
+.toc-row:hover {
+  background: #fdf0d8;
+}
+
+.toc-row:focus {
+  outline: 2px solid #c4922a;
+  outline-offset: -2px;
+}
+
+.toc-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #ede3d0;
+  color: #7a5520;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.toc-name {
+  flex: 1;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #3d2c1e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- TOC type pills ---- */
+
+.toc-type {
+  display: inline-block;
+  padding: 0.18rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Intro — purple */
+.t-intro {
+  background: #f0e8ff;
+  color: #6b35b8;
+  border-color: #d4b8f0;
+}
+
+/* Input — blue */
+.t-input {
+  background: #e8f0fb;
+  color: #1e5ca8;
+  border-color: #b0ccee;
+}
+
+/* Logic — amber */
+.t-logic {
+  background: #fff4d8;
+  color: #9a6010;
+  border-color: #e8c878;
+}
+
+/* Output — green */
+.t-output {
+  background: #e6f7ee;
+  color: #1a7a45;
+  border-color: #9adcb8;
+}
+
+/* ---- Open Book button ---- */
+
+.open-btn {
+  width: 100%;
+  padding: 0.95rem 2rem;
+  background: linear-gradient(135deg, #e8782a 0%, #d45a18 100%);
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: filter 0.18s, transform 0.12s, box-shadow 0.18s;
+  box-shadow: 0 4px 14px rgba(212, 90, 24, 0.35);
+  flex-shrink: 0;
+}
+
+.open-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(212, 90, 24, 0.42);
+}
+
+.open-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+  box-shadow: 0 2px 8px rgba(212, 90, 24, 0.3);
+}
+
+/* ================================================================
+   Responsive
+   ================================================================ */
+
+@media (max-width: 860px) {
+  .cover-layout {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .cover-left {
+    width: 100%;
+    max-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e8dcc8;
+    padding: 1.25rem;
+  }
+
+  .cover-right {
+    padding: 1.25rem;
+  }
+
+  .cov-title {
+    font-size: 1.5rem;
+  }
+}

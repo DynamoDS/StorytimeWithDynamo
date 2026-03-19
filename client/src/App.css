@@ -1,42 +1,43 @@
 .app {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
   display: flex;
-  min-height: 100vh;
+  flex-direction: column;
 }
 
-.content {
-  flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
-}
-
-.page h1 {
-  font-size: 2rem;
-  margin-bottom: 0.75rem;
-}
-
-.controls {
+.audio-controls {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
   display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
+  gap: 8px;
+  z-index: 1000;
 }
 
-.controls button {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+.audio-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  font-size: 1.2rem;
   cursor: pointer;
-  border: 1px solid #555;
-  border-radius: 6px;
-  background: #2a2a2a;
-  color: #eee;
-  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.controls button:hover:not(:disabled) {
-  background: #444;
+.audio-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.controls button:disabled {
-  opacity: 0.5;
+.audio-btn:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }

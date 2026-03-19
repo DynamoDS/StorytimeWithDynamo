@@ -1,0 +1,594 @@
+/* =========================================================
+   BookReader — full-screen open-book reading experience
+   ========================================================= */
+
+/* Root container */
+.book-reader {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: #fef9f0;
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+}
+
+/* =========================================================
+   Top bar
+   ========================================================= */
+.reader-topbar {
+  height: 50px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8d5b8;
+  position: relative;
+  z-index: 50;
+}
+
+.back-btn {
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: #fff8f0;
+  border: 1px solid #e8d5b8;
+  color: #b08060;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.back-btn:hover {
+  background: #f3e2cc;
+  color: #8a5c38;
+}
+
+.reader-title {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3d2c1e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.reader-page-indicator {
+  font-size: 0.78rem;
+  color: #9c8068;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.topbar-right {
+  flex-shrink: 0;
+}
+
+.toc-toggle-btn {
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: #fff8f0;
+  border: 1px solid #e8d5b8;
+  color: #b08060;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.toc-toggle-btn:hover {
+  background: #f3e2cc;
+  color: #8a5c38;
+}
+
+/* =========================================================
+   TOC Popover
+   ========================================================= */
+.toc-popover {
+  position: absolute;
+  right: 20px;
+  top: 56px;
+  width: 280px;
+  max-height: 360px;
+  background: #ffffff;
+  border: 1px solid #e8d5b8;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(100, 60, 20, 0.16);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.toc-pop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f0e0c8;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6b4c30;
+  font-family: 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.toc-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #b08060;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.toc-close-btn:hover {
+  background: #f3e2cc;
+}
+
+.toc-pop-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.toc-pop-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.88rem;
+  color: #4a3a2a;
+  transition: background 0.12s;
+}
+.toc-pop-row:hover {
+  background: #fdf3e6;
+}
+.toc-pop-row.active {
+  background: #fef3de;
+  font-weight: 700;
+  color: #3d2c1e;
+}
+.toc-pop-row.done {
+  color: #9c8068;
+}
+
+.toc-row-num {
+  font-size: 0.72rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #b08060;
+  width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.toc-row-label {
+  flex: 1;
+}
+
+.toc-check {
+  color: #a0c080;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   Stage & Book spread
+   ========================================================= */
+.reader-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fef9f0;
+  padding: 20px 24px;
+  overflow: hidden;
+}
+
+.book-spread {
+  display: flex;
+  max-width: 1100px;
+  width: 100%;
+  height: calc(100vh - 120px);
+  background: #ffffff;
+  box-shadow:
+    0 2px 8px rgba(100, 60, 20, 0.1),
+    0 12px 40px rgba(100, 60, 20, 0.15);
+  border-radius: 4px 8px 8px 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* =========================================================
+   Left page
+   ========================================================= */
+.page-left {
+  flex: 1;
+  background: linear-gradient(
+    108deg,
+    #fdf6ec 0%,
+    #faf0e2 60%,
+    #f5e8d4 100%
+  );
+  padding: 28px 24px 20px 28px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: inset -6px 0 14px -8px rgba(120, 80, 30, 0.18);
+}
+
+/* Chapter ornament — top of left page */
+.chapter-ornament {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ornament-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c8a878, transparent);
+}
+
+.ornament-center {
+  font-size: 0.72rem;
+  color: #9c8068;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Graph area */
+.graph-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.graph-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 300px;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Legend */
+.page-legend {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #7a6050;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Left page number */
+.page-num-left {
+  text-align: center;
+  font-size: 0.72rem;
+  color: #b0907a;
+  letter-spacing: 0.1em;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* =========================================================
+   Book gutter / spine
+   ========================================================= */
+.book-gutter {
+  width: 32px;
+  flex-shrink: 0;
+  background: linear-gradient(
+    90deg,
+    #d4b896 0%,
+    #c8a878 18%,
+    #b89060 40%,
+    #c8a878 62%,
+    #d4b896 80%,
+    #e0c8a8 100%
+  );
+  box-shadow:
+    inset 2px 0 6px rgba(120, 70, 20, 0.25),
+    inset -2px 0 6px rgba(120, 70, 20, 0.25);
+  position: relative;
+}
+
+/* Subtle stitching lines on spine */
+.book-gutter::before,
+.book-gutter::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(160, 100, 40, 0.3);
+}
+.book-gutter::before { left: 8px; }
+.book-gutter::after  { right: 8px; }
+
+/* =========================================================
+   Right page wrapper (perspective container for flip)
+   ========================================================= */
+.page-right-wrap {
+  flex: 1;
+  position: relative;
+  perspective: 1400px;
+  perspective-origin: left center;
+  overflow: hidden;
+}
+
+/* =========================================================
+   Right page
+   ========================================================= */
+.page-right {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    108deg,
+    #fef8ef 0%,
+    #fdf3e3 60%,
+    #f8ead4 100%
+  );
+  padding: 28px 28px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: inset 6px 0 14px -8px rgba(120, 80, 30, 0.12);
+  overflow-y: auto;
+}
+
+/* Right page ornament */
+.page-ornament {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Step type pill */
+.step-type-pill {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: 'Inter', system-ui, sans-serif;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+/* Step title */
+.right-page-title {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #3d2c1e;
+  margin: 0;
+  line-height: 1.3;
+  flex-shrink: 0;
+}
+
+/* Story text */
+.right-page-text {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.97rem;
+  line-height: 1.75;
+  color: #4a3a2a;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   Callouts
+   ========================================================= */
+.callouts-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.callout-item {
+  background: #fdf8f0;
+  border-left: 3px solid #c8a878;
+  padding: 8px 12px;
+  border-radius: 0 6px 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.callout-k {
+  font-size: 0.68rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #9c8068;
+}
+
+.callout-v {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #3d2c1e;
+  font-family: 'Lora', Georgia, serif;
+}
+
+/* =========================================================
+   Page footer (nav buttons + page number)
+   ========================================================= */
+.page-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  padding-top: 12px;
+}
+
+.pg-num {
+  font-size: 0.72rem;
+  color: #b0907a;
+  letter-spacing: 0.1em;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.pg-btn {
+  padding: 7px 20px;
+  border-radius: 999px;
+  border: 1px solid #e8d5b8;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.pg-btn:active {
+  transform: scale(0.97);
+}
+.pg-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.pg-btn-prev {
+  background: #fff8f0;
+  color: #b08060;
+}
+.pg-btn-prev:not(:disabled):hover {
+  background: #f3e2cc;
+  color: #8a5c38;
+  box-shadow: 0 2px 8px rgba(180, 120, 60, 0.15);
+}
+
+.pg-btn-next {
+  background: linear-gradient(135deg, #e8b87a 0%, #d4944a 100%);
+  color: #3d2010;
+  border-color: #c07830;
+  box-shadow: 0 2px 6px rgba(180, 100, 30, 0.25);
+}
+.pg-btn-next:not(:disabled):hover {
+  background: linear-gradient(135deg, #f0ca90 0%, #e0a855 100%);
+  box-shadow: 0 4px 12px rgba(180, 100, 30, 0.35);
+}
+
+/* =========================================================
+   Page flip animation
+   ========================================================= */
+#flip-layer,
+.flip-page {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(108deg, #fef8ef 0%, #fdf3e3 60%, #f8ead4 100%);
+  padding: 28px 28px 20px 24px;
+  transform-origin: left center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  z-index: 10;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.flip-fwd {
+  animation: flipForward 650ms ease-in-out forwards;
+}
+
+.flip-bwd {
+  animation: flipBackward 550ms ease-in-out forwards;
+}
+
+@keyframes flipForward {
+  0%   { transform: rotateY(0deg);    opacity: 1; }
+  40%  { transform: rotateY(-55deg);  opacity: 0.9; }
+  100% { transform: rotateY(-180deg); opacity: 0; }
+}
+
+@keyframes flipBackward {
+  0%   { transform: rotateY(-180deg); opacity: 0; }
+  60%  { transform: rotateY(-55deg);  opacity: 0.9; }
+  100% { transform: rotateY(0deg);    opacity: 1; }
+}
+
+/* =========================================================
+   Responsive — narrow viewports
+   ========================================================= */
+@media (max-width: 700px) {
+  .book-spread {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 100px);
+    border-radius: 8px;
+  }
+
+  .page-left {
+    max-height: 260px;
+    box-shadow: inset 0 -6px 14px -8px rgba(120, 80, 30, 0.18);
+  }
+
+  .book-gutter {
+    width: 100%;
+    height: 16px;
+    background: linear-gradient(
+      180deg,
+      #d4b896 0%,
+      #c8a878 40%,
+      #b89060 60%,
+      #d4b896 100%
+    );
+  }
+
+  .book-gutter::before,
+  .book-gutter::after {
+    top: 4px;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 1px;
+  }
+  .book-gutter::before { top: 4px; bottom: auto; }
+  .book-gutter::after  { bottom: 4px; top: auto; }
+
+  .page-right-wrap {
+    perspective: none;
+    flex: 1;
+  }
+
+  .page-right {
+    position: relative;
+    inset: auto;
+  }
+
+  .reader-title {
+    display: none;
+  }
+}

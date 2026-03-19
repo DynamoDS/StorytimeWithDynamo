@@ -1,30 +1,50 @@
 import { useState, useCallback } from 'react';
 import { playLullaby, stopLullaby, playPageTurn, speakAsGandalf } from './sounds';
-import Sidebar from './components/Sidebar';
-import Home from './pages/Home';
-import Stories from './pages/Stories';
-import Characters from './pages/Characters';
-import Settings from './pages/Settings';
+import Library from './components/Library';
+import BookCover from './components/BookCover';
+import BookReader from './components/BookReader';
+import BookResult from './components/BookResult';
+import { SAMPLE_STEPS } from './data/sampleSteps';
 import './App.css';
 
-const libraryItems = [
-  { id: 'home', label: 'Home', icon: '\u2302' },
-  { id: 'stories', label: 'Stories', icon: '\uD83D\uDCD6' },
-  { id: 'characters', label: 'Characters', icon: '\uD83E\uDDD9' },
-  { id: 'settings', label: 'Settings', icon: '\u2699' },
-];
-
 function App() {
-  const [activePage, setActivePage] = useState('home');
-  const [graphData, setGraphData] = useState(null);
-  const [graphName, setGraphName] = useState(null);
+  const [screen, setScreen] = useState('library');
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [currentStep, setCurrentStep] = useState(0);
   const [lullabyOn, setLullabyOn] = useState(false);
   const [speaking, setSpeaking] = useState(false);
 
-  const handleGraphLoaded = useCallback((data, fileName) => {
-    setGraphData(data);
-    setGraphName(fileName);
-    setActivePage('stories');
+  const handleBookSelect = useCallback((book) => {
+    setSelectedBook(book);
+    setScreen('cover');
+  }, []);
+
+  const handleOpenBook = useCallback(() => {
+    setCurrentStep(0);
+    setScreen('reader');
+  }, []);
+
+  const handleJumpTo = useCallback((stepIndex) => {
+    setCurrentStep(stepIndex);
+    setScreen('reader');
+  }, []);
+
+  const handleStepChange = useCallback((newStep) => {
+    setCurrentStep(newStep);
+  }, []);
+
+  const handleFinish = useCallback(() => {
+    setScreen('result');
+  }, []);
+
+  const handleReadAgain = useCallback(() => {
+    setCurrentStep(0);
+    setScreen('reader');
+  }, []);
+
+  const handleBackToLibrary = useCallback(() => {
+    setSelectedBook(null);
+    setScreen('library');
   }, []);
 
   function toggleLullaby() {
@@ -42,28 +62,50 @@ function App() {
     setSpeaking(false);
   }
 
-  const pages = {
-    home: <Home onGraphLoaded={handleGraphLoaded} />,
-    stories: <Stories graphData={graphData} graphName={graphName} />,
-    characters: <Characters />,
-    settings: <Settings />,
-  };
+  // For now, all books use the same sample steps
+  const steps = SAMPLE_STEPS;
 
   return (
     <div className="app">
-      <Sidebar
-        items={libraryItems}
-        activeItem={activePage}
-        onSelect={setActivePage}
-        lullabyOn={lullabyOn}
-        onToggleLullaby={toggleLullaby}
-        onPageTurn={playPageTurn}
-        onNarrate={handleNarrate}
-        speaking={speaking}
-      />
-      <main className="content">
-        {pages[activePage]}
-      </main>
+      {screen === 'library' && (
+        <Library onBookSelect={handleBookSelect} />
+      )}
+      {screen === 'cover' && selectedBook && (
+        <BookCover
+          book={selectedBook}
+          steps={steps}
+          onBack={handleBackToLibrary}
+          onOpenBook={handleOpenBook}
+          onJumpTo={handleJumpTo}
+        />
+      )}
+      {screen === 'reader' && selectedBook && (
+        <BookReader
+          book={selectedBook}
+          steps={steps}
+          currentStep={currentStep}
+          onStepChange={handleStepChange}
+          onBack={() => setScreen('cover')}
+          onFinish={handleFinish}
+          onPageTurn={playPageTurn}
+        />
+      )}
+      {screen === 'result' && selectedBook && (
+        <BookResult
+          book={selectedBook}
+          totalSteps={steps.length}
+          onReadAgain={handleReadAgain}
+          onBackToLibrary={handleBackToLibrary}
+        />
+      )}
+      <div className="audio-controls">
+        <button className="audio-btn" onClick={toggleLullaby} title={lullabyOn ? 'Stop Lullaby' : 'Play Lullaby'}>
+          {lullabyOn ? '\u23F9' : '\u266B'}
+        </button>
+        <button className="audio-btn" onClick={handleNarrate} disabled={speaking} title="Narrate">
+          {speaking ? '\uD83D\uDDE3\uFE0F' : '\uD83E\uDDD9'}
+        </button>
+      </div>
     </div>
   );
 }
