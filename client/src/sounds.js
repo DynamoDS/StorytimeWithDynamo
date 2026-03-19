@@ -42,33 +42,57 @@ const melody = [
 
 const tempo = 0.45;
 let lullabyTimer = null;
+let lullabyGain = null;
 
-function scheduleLullaby(ctx, startTime) {
+function scheduleLullaby(ctx, gainNode, startTime) {
   melody.forEach((freq, i) => {
     if (freq) {
+      const osc = ctx.createOscillator();
+      const noteGain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      filter.type = 'lowpass';
+      filter.frequency.value = 2000;
+
       const isHeld = i % 8 === 6;
       const dur = isHeld ? tempo * 1.8 : tempo * 0.9;
-      playNote(ctx, freq, startTime + i * tempo, dur, 0.12);
+      const t = startTime + i * tempo;
+
+      noteGain.gain.setValueAtTime(0, t);
+      noteGain.gain.linearRampToValueAtTime(0.12, t + 0.05);
+      noteGain.gain.setValueAtTime(0.12, t + dur - 0.1);
+      noteGain.gain.linearRampToValueAtTime(0, t + dur);
+
+      osc.connect(filter);
+      filter.connect(noteGain);
+      noteGain.connect(gainNode);
+
+      osc.start(t);
+      osc.stop(t + dur);
     }
   });
 }
 
 export function playLullaby() {
+  stopLullaby();
+
   const ctx = getAudioContext();
   const songDuration = melody.length * tempo;
-  const gap = 1.5; // pause between loops
+  const gap = 1.5;
 
-  // Schedule the first play immediately
+  lullabyGain = ctx.createGain();
+  lullabyGain.connect(ctx.destination);
+
   let nextStart = ctx.currentTime;
-  scheduleLullaby(ctx, nextStart);
+  scheduleLullaby(ctx, lullabyGain, nextStart);
 
-  // Keep scheduling the next loop ahead of time
   lullabyTimer = setInterval(() => {
     const now = ctx.currentTime;
-    // Schedule next iteration if we're getting close
     if (now >= nextStart + songDuration - 1) {
       nextStart = nextStart + songDuration + gap;
-      scheduleLullaby(ctx, nextStart);
+      scheduleLullaby(ctx, lullabyGain, nextStart);
     }
   }, 500);
 }
@@ -77,6 +101,10 @@ export function stopLullaby() {
   if (lullabyTimer) {
     clearInterval(lullabyTimer);
     lullabyTimer = null;
+  }
+  if (lullabyGain) {
+    lullabyGain.disconnect();
+    lullabyGain = null;
   }
 }
 

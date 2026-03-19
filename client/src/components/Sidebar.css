@@ -65,3 +65,37 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.sidebar-controls {
+  margin-top: auto;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-control-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  color: #b0b0c0;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 6px;
+  text-align: left;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.sidebar-control-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.sidebar-control-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
